@@ -1,0 +1,20 @@
+% Overview
+
+This WebSharper™ Extension provides a set of classes and functions almost
+identical to the ones documented in the [WebGL API][webgl-api]. When used
+in WebSharper™ projects, these stub classes delegate the work to the
+actual classes implemented by the browser.
+
+After adding the reference to the project all the classes can be found
+under the `IntelliFactory.WebSharper.WebGL` module.
+
+The WebGL WebSharper Extension is as far as possible a one-to-one
+mapping of WebGL. Therefore, a description of the WebGL pipeline and
+the structure of a WebGL program are beyond the scope of this manual.
+We recommend to have a look at online resources such as
+[Learning WebGL][learning-webgl] for such information. Instead, we
+present here the differences and subtleties between the extension
+and the JavaScript API.
+
+[webgl-api] http://www.khronos.org/registry/webgl/specs/latest/
+[learning-webgl] http://learningwebgl.com
