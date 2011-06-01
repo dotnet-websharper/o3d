@@ -6,7 +6,16 @@
 <head runat="server">
    <title></title>
    <WebSharper:ScriptManager runat="server" ></WebSharper:ScriptManager>
-  
+   <script type="text/javascript">
+       o3djs.require('o3djs.webgl');
+       o3djs.require('o3djs.util');
+       o3djs.require('o3djs.math');
+       o3djs.require('o3djs.rendergraph');
+       o3djs.require('o3djs.primitives');
+       o3djs.require('o3djs.quaternions');
+       o3djs.require('o3djs.effect');
+       o3djs.require('o3djs.event');
+   </script>
  </head>
 <body>
     <form id="form1" runat="server">

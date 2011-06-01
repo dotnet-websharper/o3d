@@ -1,20 +1,25 @@
 % Overview
 
 This WebSharper™ Extension provides a set of classes and functions almost
-identical to the ones documented in the [WebGL API][webgl-api]. When used
+identical to the ones documented in the [O3D API][o3d-api]. When used
 in WebSharper™ projects, these stub classes delegate the work to the
 actual classes implemented by the browser.
 
 After adding the reference to the project all the classes can be found
-under the `IntelliFactory.WebSharper.WebGL` module.
+under the `IntelliFactory.WebSharper.O3D` module.
 
-The WebGL WebSharper Extension is as far as possible a one-to-one
-mapping of WebGL. Therefore, a description of the WebGL pipeline and
-the structure of a WebGL program are beyond the scope of this manual.
+The O3D WebSharper Extension is as far as possible a one-to-one
+mapping of O3D. Therefore, a description of the O3D pipeline and
+the structure of an O3D program are beyond the scope of this manual.
 We recommend to have a look at online resources such as
-[Learning WebGL][learning-webgl] for such information. Instead, we
+[the O3D developer's guide][o3d-devguide] for such information. Instead, we
 present here the differences and subtleties between the extension
 and the JavaScript API.
 
-[webgl-api] http://www.khronos.org/registry/webgl/specs/latest/
-[learning-webgl] http://learningwebgl.com
+O3D exists in two forms: a plugin for Google Chrome, and a JavaScript API
+on top of WebGL. The Chrome plugin has been deprecated by Google in May 2010;
+therefore, although the WebSharper™ extension includes complete functionality
+for both backends, this documentation assumes that WebGL is used.
+
+[o3d-api] http://code.google.com/apis/o3d/docs/api_reference.html
+[o3d-devguide] http://code.google.com/apis/o3d/docs/devguideintro.html

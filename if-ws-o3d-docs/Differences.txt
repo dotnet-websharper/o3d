@@ -1,0 +1,71 @@
+﻿% Differences with JavaScript
+
+## Mathematics
+
+O3D manipulates vectors and quaternions as arrays of numbers, and
+matrices as arrays of arrays. This implies that it uses the same
+functions to manipulate all data sizes. This allows for some
+hard-to-debug errors such as taking the dot-product of two vectors of
+different sizes.
+
+Since WebSharper translates F# tuples as JavaScript arrays, we add
+some extra safety by manipulating mathematical data as tuples. All
+functions in the module `O3DJS.Math` are overloaded to accept tuples
+as arguments. They also have overloads accepting arrays, if you need
+to work without this added safety, for example if you need to multiply
+arbitrary-sized matrices.
+
+Moreover, we also use F#'s support for function overloading to shorten
+function names. Indeed, contrary to JavaScript, there is no need to
+distinguish between eg. `math.addVector` and `math.addMatrix`;
+therefore both are merged in a single `Math.Add` function with
+appropriate overloads.
+
+As an example, the following code from [the Pool sample][o3d-pool]:
+
+    #javascript
+    var Vr = o3djs.math.subVector(
+		 o3djs.math.addVector(o3djs.math.cross(w2, r2), v2),
+		 o3djs.math.addVector(o3djs.math.cross(w1, r1), v1));
+    var Vrn = o3djs.math.mulScalarVector(o3djs.math.dot(Vn, N), N);
+    var Vrt = o3djs.math.subVector(Vr, Vrn);
+
+is translated into WebSharper as:
+
+    #fsharp
+    let Vr = O3DJS.Math.Sub(
+		 O3DJS.Math.Add(O3DJS.Math.Cross(w2, r2), v2),
+		 O3DJS.Math.Add(O3DJS.Math.Cross(w1, r1), v1))
+    let Vrn = O3DJS.Math.Mul(O3DJS.Math.Dot(Vn, N), N)
+    let Vrt = O3DJS.Math.Sub(Vr, Vrn)
+
+## Parameters
+
+In O3D, the methods `Pack.createObject`, `Pack.getObjects`,
+`State.getStateParam`, `Curve.createKey` and `ParamObject.createParam`
+return an object whose type depends on the argument passed. This is
+not suitable for use in F#. Therefore, these methods have been
+translated into series of individual methods, each of which handles
+one of the possible return types.
+
+For example, the following JavaScript snippet:
+
+    #javascript
+    var transform = pack.createObject('Transform');
+    transform.parent = root;
+    var myParam = transform.createParam('objectCenter', 'ParamFloat2');
+
+translates into:
+
+    #fsharp
+    let transform = pack.CreateTransform(Parent = root)
+    let myParam = transform.CreateParamFloat2("objectCenter")
+
+In JavaScript, the type of `myParam` is `ParamFloat2`. In WebSharper, we
+use a parameterized type: the type of `myParam` is `Param<float * float>`.
+
+Note also how we used property assignment to shorten the construction
+of `transform` into a single line.
+
+
+[o3d-pool] http://code.google.com/p/o3d/source/browse/trunk/samples_webgl/o3d-webgl-samples/pool.html
