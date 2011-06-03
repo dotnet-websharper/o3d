@@ -774,14 +774,14 @@ type Pool [<JavaScript>]() =
         g_hudViewInfo <- O3DJS.Rendergraph.CreateBasicView(g_pack, g_hudRoot, hudRenderRoot)
         g_hudViewInfo.Root.Priority <- g_viewInfo.Root.Priority + 1.
         g_hudViewInfo.ClearBuffer.ClearColorFlag <- false
-        g_hudViewInfo.ZOrderedState.GetStateParamCullMode.Value <- O3D.State.Cull.CULL_NONE
+        g_hudViewInfo.ZOrderedState.GetStateParamCullMode.Value <- O3D.State.CULL_NONE
         g_hudViewInfo.ZOrderedState.GetStateParamZWriteEnable.Value <- false
         g_hudViewInfo.DrawContext.Projection <- O3DJS.Math.Matrix4.Orthographic(0., 1., 0., 1., -10., 10.)
         g_hudViewInfo.DrawContext.View <- O3DJS.Math.Matrix4.LookAt((0., 0., 1.),
                                                                   (0., 0., 0.),
                                                                   (0., 1., 0.))
         g_shadowTexture <- g_pack.CreateTexture2D(RENDER_TARGET_WIDTH, RENDER_TARGET_HEIGHT,
-                                              O3D.Texture.Format.XRGB8, 1, true)
+                                              O3D.Texture.XRGB8, 1, true)
         let renderSurface = g_shadowTexture.GetRenderSurface 0
         let depthSurface = g_pack.CreateDepthStencilSurface(RENDER_TARGET_WIDTH, RENDER_TARGET_HEIGHT)
         let renderSurfaceSet = g_pack.CreateRenderSurfaceSet(RenderSurface = renderSurface,
@@ -790,7 +790,7 @@ type Pool [<JavaScript>]() =
         let shadowPassParent = if SHADOWPOV then renderSurfaceSet :> O3D.RenderNode
                                             else g_client.RenderGraphRoot
         g_shadowPassViewInfo <- O3DJS.Rendergraph.CreateBasicView(g_pack, g_shadowRoot, shadowPassParent, (0., 0., 0., 1.))
-        g_shadowPassViewInfo.ZOrderedState.GetStateParamZComparisonFunction.Value <- O3D.State.Comparison.CMP_ALWAYS
+        g_shadowPassViewInfo.ZOrderedState.GetStateParamZComparisonFunction.Value <- O3D.State.CMP_ALWAYS
 
     [<JavaScript>]
     let HandleResizeEvent event =
@@ -957,7 +957,7 @@ type Pool [<JavaScript>]() =
         let height = bitmap.Height / 4
         let levels = O3DJS.Texture.ComputeNumLevels(width, height)
         for i = 0 to 15 do
-            g_ballTextures.[i] <- g_pack.CreateTexture2D(width, height, O3D.Texture.Format.XRGB8, 0, false)
+            g_ballTextures.[i] <- g_pack.CreateTexture2D(width, height, O3D.Texture.XRGB8, 0, false)
             g_ballTextureSamplers.[i] <- g_pack.CreateSampler(Texture = g_ballTextures.[i])
         for i = 0 to 15 do
             let u = i % 4
@@ -1000,8 +1000,8 @@ type Pool [<JavaScript>]() =
     [<JavaScript>]
     let FlatMesh(material, vertexPositions : Float3[], faceIndices) =
         let vertexInfo = O3DJS.Primitives.CreateVertexInfo()
-        let positionStream = vertexInfo.AddStream(3, O3D.Stream.Semantic.POSITION)
-        let normalStream = vertexInfo.AddStream(3, O3D.Stream.Semantic.NORMAL)
+        let positionStream = vertexInfo.AddStream(3, O3D.Stream.POSITION)
+        let normalStream = vertexInfo.AddStream(3, O3D.Stream.NORMAL)
         faceIndices |> Array.fold (fun vertexCount (faceX, faceY, faceZ, faceW) ->
             let n = O3DJS.Math.Normalize(O3DJS.Math.Cross(O3DJS.Math.Sub(vertexPositions.[faceY],
                                                                          vertexPositions.[faceX]),

@@ -31,9 +31,21 @@ module O3D =
             |=> t
             |+> (strings
                  |> List.map (fun s ->
-                    s =? t
-                    |> WithGetterInline (name + "." + s)
+                    s =% t
+                    // |> WithGetterInline (name + "." + s)
                     :> CodeModel.IClassMember))
+
+        let Constants name (subT : Type.Type) strings = fun t ->
+            let c = Class name |=> subT
+            let fields =
+                strings
+                |> List.map (fun s ->
+                    s =% subT
+//                    |> WithGetterInline (name + "." + s)
+                    :> CodeModel.IClassMember)
+            t
+            |=> Nested [c]
+            |+> fields
 
         let ClassWithInitArgs name args =
             Pattern.Config name {Optional=args; Required=[]}
@@ -483,21 +495,19 @@ module O3D =
         |=> StepCurveKey
         |=> Inherits CurveKey
 
-    let Bitmap_SemanticClass =
-        ConstantsType "o3d.Bitmap" Bitmap_Semantic [
-            "FACE_POSITIVE_X"
-            "FACE_NEGATIVE_X"
-            "FACE_POSITIVE_Y"
-            "FACE_NEGATIVE_Y"
-            "FACE_POSITIVE_Z"
-            "FACE_NEGATIVE_Z"
-            "IMAGE"
-            "SLICE"
-        ]
-        |> WithSourceName "Semantic"
-
-    let Texture_FormatClass =
-        ConstantsType "o3d.Texture" Texture_Format [
+    let TextureClass =
+        Class "o3d.Texture"
+        |=> Texture
+        |=> Inherits ParamObject
+        |+> Protocol
+            [
+                "generateMips" => T<int> * T<int> ^-> T<unit>
+                "alphaIsOne" =? T<bool>
+                "format" =? Texture_Format
+                |> WithSourceName "format"
+                "levels" =? T<int>
+            ]
+        |> Constants "Format" Texture_Format [
             "UNKNOWN_FORMAT"
             "XRGB8"
             "ARGB8"
@@ -508,27 +518,12 @@ module O3D =
             "DXT3"
             "DXT5"
         ]
-        |> WithSourceName "Format"
 
-    let TextureClass =
-        Class "o3d.Texture"
-        |=> Texture
-        |=> Inherits ParamObject
-        |=> Nested [Texture_FormatClass]
-        |+> Protocol
-            [
-                "generateMips" => T<int> * T<int> ^-> T<unit>
-                "alphaIsOne" =? T<bool>
-                "format" =? Texture_Format
-                |> WithSourceName "format"
-                "levels" =? T<int>
-            ]
 
     let BitmapClass =
         Class "o3d.Bitmap"
         |=> Bitmap
         |=> Inherits ParamObject
-        |=> Nested [Bitmap_SemanticClass]
         |+> Protocol
             [
                 "flipVertically" => T<unit> ^-> T<unit>
@@ -540,6 +535,16 @@ module O3D =
                 |> WithSourceName "semantic"
                 "width" =? T<int>
             ]
+        |> Constants "Semantic" Bitmap_Semantic [
+            "FACE_POSITIVE_X"
+            "FACE_NEGATIVE_X"
+            "FACE_POSITIVE_Y"
+            "FACE_NEGATIVE_Y"
+            "FACE_POSITIVE_Z"
+            "FACE_NEGATIVE_Z"
+            "IMAGE"
+            "SLICE"
+        ]
 
     let RenderSurfaceBaseClass =
         Class "o3d.RenderSurfaceBase"
@@ -580,17 +585,6 @@ module O3D =
                 "width" =? T<int>
             ]
 
-    let TextureCUBE_CubeFaceClass =
-        ConstantsType "o3d.TextureCUBE" TextureCUBE_CubeFace [
-            "FACE_POSITIVE_X"
-            "FACE_NEGATIVE_X"
-            "FACE_POSITIVE_Y"
-            "FACE_NEGATIVE_Y"
-            "FACE_POSITIVE_Z"
-            "FACE_NEGATIVE_Z"
-        ]
-        |> WithSourceName "CubeFace"
-
     let TextureCUBEClass =
         Class "o3d.TextureCUBE"
         |=> TextureCUBE
@@ -608,6 +602,15 @@ module O3D =
                 "setRect" => TextureCUBE_CubeFace?face * T<int>?level * T<int>?dstx * T<int>?dsty * T<int>?srcwidth * Type.ArrayOf T<float> ^-> T<unit>
                 "edgeLength" =? T<int>
             ]
+        |> Constants "CubeFace" TextureCUBE_CubeFace [
+            "FACE_POSITIVE_X"
+            "FACE_NEGATIVE_X"
+            "FACE_POSITIVE_Y"
+            "FACE_NEGATIVE_Y"
+            "FACE_POSITIVE_Z"
+            "FACE_NEGATIVE_Z"
+        ]
+
 
 
     let FieldTypeClass =
@@ -681,45 +684,22 @@ module O3D =
                 "top" =? T<float>
             ]
 
-    let CanvasPaint_StyleClass =
-        ConstantsType "o3d.CanvasPaint" CanvasPaint_Style [
-            "NORMAL"
-            "BOLD"
-            "ITALIC"
-            "BOLD_ITALIC"
-        ]
-        |> WithSourceName "Style"
-
-    let CanvasPaint_TextAlignClass =
-        ConstantsType "o3d.CanvasPaint" CanvasPaint_TextAlign [
-            "LEFT"
-            "CENTER"
-            "RIGHT"
-        ]
-        |> WithSourceName "TextAlign"
-
-    let CanvasShader_TileModeClass =
-        ConstantsType "o3d.CanvasShader" CanvasShader_TileMode [
-            "CLAMP"
-            "REPEAT"
-            "MIRROR"
-        ]
-        |> WithSourceName "TileMode"
-
     let CanvasShaderClass =
         Class "o3d.CanvasShader"
         |=> CanvasShader
         |=> Inherits ParamObject
-        |+> Protocol
-            [
-            ]
+        |> Constants "TileMode" CanvasShader_TileMode [
+            "CLAMP"
+            "REPEAT"
+            "MIRROR"
+        ]
+
 
     let CanvasPaintClass =
         ClassWithInitArgs "o3d.CanvasPaint"
             [
                 "color", Float4
                 "shader", CanvasShader
-                "textAlign", CanvasPaint_TextAlign
                 "textSize", T<int>
                 "textStyle", CanvasPaint_Style
                 "textTypeface", T<string>
@@ -732,7 +712,22 @@ module O3D =
                 "measureText" => T<string> ^-> Float4
                 "setOutline" => T<float>?radius * Float4?color ^-> T<unit>
                 "setShadow" => T<float>?radius * T<float>?offsetx * T<float>?offsety * Float4?color ^-> T<unit>
+                "textAlign" =% CanvasPaint_TextAlign
+                |> WithSourceName "textAlign"
             ]
+        |> Constants "Style" CanvasPaint_Style [
+            "NORMAL"
+            "BOLD"
+            "ITALIC"
+            "BOLD_ITALIC"
+        ]
+        |> Constants "TextAlign" CanvasPaint_TextAlign [
+            "LEFT"
+            "CENTER"
+            "RIGHT"
+        ]
+
+
 
     let CanvasClass =
         Class "o3d.Canvas"
@@ -797,13 +792,6 @@ module O3D =
             ]
         |=> ClearBuffer
         |=> Inherits RenderNode
-
-    let Client_RenderModeClass =
-        ConstantsType "o3d.Client" Client_RenderMode [
-            "RENDERMODE_CONTINUOUS"
-            "RENDERMODE_ON_DEMAND"
-        ]
-        |> WithSourceName "RenderMode"
 
     let RenderDepthStencilSurfaceClass =
         Class "o3d.RenderDepthStencilSurface"
@@ -1195,18 +1183,17 @@ module O3D =
                 "width" =? T<int>
             ]
 
-    let Event_ButtonClass =
-        ConstantsType "o3d.Event" Event_Button [
+    let EventClass =
+        Class "o3d.Event"
+        |=> Event
+        |> Constants "Button" Event_Button [
             "BUTTON_LEFT"
             "BUTTON_RIGHT"
             "BUTTON_MIDDLE"
             "BUTTON_4"
             "BUTTON_5"
         ]
-        |> WithSourceName "Button"
-
-    let Event_TypeClass =
-        ConstantsType "o3d.Event" Event_Type [
+        |> Constants "Type" Event_Type [
             "invalid"
             "click"
             "dblclick"
@@ -1219,12 +1206,6 @@ module O3D =
             "keyup"
             "resize"
         ]
-        |> WithSourceName "Type"
-
-    let EventClass =
-        Class "o3d.Event"
-        |=> Event
-        |=> Nested [Event_ButtonClass; Event_TypeClass]
         |+> Protocol
             [
                 "altKey" =? T<bool>
@@ -1284,8 +1265,10 @@ module O3D =
                 "textureMemoryUsed" =? T<int>
             ]
 
-    let Cursor_CursorTypeClass =
-        ConstantsType "o3d.Cursor" Cursor_CursorType [
+    let CursorClass =
+        Class "o3d.Cursor"
+        |=> Cursor
+        |> Constants "Type" Cursor_CursorType [
             "DEFAULT"
             "NONE"
             "CROSSHAIR"
@@ -1304,50 +1287,35 @@ module O3D =
             "PROGRESS"
             "HELP"
         ]
-        |> WithSourceName "CursorType"
 
-    let CursorClass =
-        Class "o3d.Cursor"
-        |=> Cursor
-        |=> Nested [Cursor_CursorTypeClass]
-
-    let Renderer_InitStatusClass =
-        ConstantsType "o3d.Renderer" Renderer_InitStatus [
+    let RendererClass =
+        Class "o3d.Renderer"
+        |=> Renderer
+        |> Constants "InitStatus" Renderer_InitStatus [
             "UNINITIALIZED"
             "SUCCESS"
             "GPU_NOT_UP_TO_SPEC"
             "OUT_OF_RESOURCES"
             "INITIALIZATION_ERROR"
         ]
-        |> WithSourceName "InitStatus"
-
-    let Renderer_DisplayModesClass =
-        ConstantsType "o3d.Renderer" Renderer_DisplayModes [
+        |> Constants "DisplayModes" Renderer_DisplayModes [
             "DISPLAY_MODE_DEFAULT"
         ]
-        |> WithSourceName "DisplayModes"
-
-    let RendererClass =
-        Class "o3d.Renderer"
-        |=> Renderer
-        |=> Nested [Renderer_InitStatusClass; Renderer_DisplayModesClass]
-
-    let DrawList_SortMethodClass =
-        ConstantsType "o3d.DrawList" DrawList_SortMethod [
-            "BY_PERFORMANCE"
-            "BY_Z_ORDER"
-            "BY_PRIORITY"
-        ]
-        |> WithSourceName "SortMethod"
 
     let DrawListClass =
         Class "o3d.DrawList"
         |=> DrawList
         |=> Inherits NamedObject
-        |=> Nested [DrawList_SortMethodClass]
+        |> Constants "SortMethod" DrawList_SortMethod [
+            "BY_PERFORMANCE"
+            "BY_Z_ORDER"
+            "BY_PRIORITY"
+        ]
 
-    let Stream_SemanticClass =
-        ConstantsType "o3d.Stream" Stream_Semantic [
+    let StreamClass =
+        Class "o3d.Stream"
+        |=> Stream
+        |> Constants "Semantic" Stream_Semantic [
             "UNKNOWN_SEMANTIC"
             "POSITION"
             "NORMAL"
@@ -1356,12 +1324,6 @@ module O3D =
             "COLOR"
             "TEXCOORD"
         ]
-        |> WithSourceName "Semantic"
-
-    let StreamClass =
-        Class "o3d.Stream"
-        |=> Stream
-        |=> Nested [Stream_SemanticClass]
         |+> Protocol
             [
                 "field" =? Field
@@ -1371,22 +1333,13 @@ module O3D =
                 "startIndex" =? T<int>
             ]
 
-    let Effect_MatrixLoadOrderClass =
-        ConstantsType "o3d.Effect" Effect_MatrixLoadOrder [
-            "ROW_MAJOR"
-            "COLUMN_MAJOR"
-        ]
-        |> WithSourceName "MatrixLoadOrder"
-
     let EffectParameterInfoClass =
-        let semantic =
-            ConstantsType "o3d.Effect" (Type.New()) [
-                "UPPERCASE"
-            ]
-            |> WithSourceName "Semantic"
+        let semantic = Type.New()
         Class "o3d.EffectParameterInfo"
         |=> EffectParameterInfo
-        |=> Nested [semantic]
+        |> Constants "Semantic" semantic [
+            "UPPERCASE"
+        ]
         |+> Protocol
             [
                 "className" =? T<string>
@@ -1410,7 +1363,10 @@ module O3D =
         Class "o3d.Effect"
         |=> Effect
         |=> Inherits ParamObject
-        |=> Nested [Effect_MatrixLoadOrderClass]
+        |> Constants "MatrixLoadOrder" Effect_MatrixLoadOrder [
+            "ROW_MAJOR"
+            "COLUMN_MAJOR"
+        ]
         |+> Protocol
             [
                 "createSASParameters" => ParamObject ^-> T<unit>
@@ -1424,18 +1380,17 @@ module O3D =
                 "source" => T<string>
             ]
 
-    let State_BlendingEquationClass =
-        ConstantsType "o3d.State" State_BlendingEquation [
+    let StateClass =
+        Class "o3d.State"
+        |=> State
+        |> Constants "BlendingEquation" State_BlendingEquation [
             "BLEND_ADD"
             "BLEND_SUBSTRACT"
             "BLEND_REVERSE_SUBSTRACT"
             "BLEND_MIN"
             "BLEND_MAX"
         ]
-        |> WithSourceName "BlendingEquation"
-
-    let State_BlendingFunctionClass =
-        ConstantsType "o3d.State" State_BlendingFunction [
+        |> Constants "BlendingFunction" State_BlendingFunction [
             "BLENDFUNC_ZERO"
             "BLENDFUNC_ONE"
             "BLENDFUNC_SOURCE_COLOR"
@@ -1448,10 +1403,7 @@ module O3D =
             "BLENDFUNC_INVERSE_DESTINATION_COLOR"
             "BLENDFUNC_SOURCE_ALPHA_SATURATE"
         ]
-        |> WithSourceName "BlendingFunction"
-
-    let State_ComparisonClass =
-        ConstantsType "o3d.State" State_Comparison [
+        |> Constants "Comparison" State_Comparison [
             "CMP_NEVER"
             "CMP_LESS"
             "CMP_EQUAL"
@@ -1461,26 +1413,17 @@ module O3D =
             "CMP_GEQUAL"
             "CMP_ALWAYS"
         ]
-        |> WithSourceName "Comparison"
-
-    let State_CullClass =
-        ConstantsType "o3d.State" State_Cull [
+        |> Constants "Cull" State_Cull [
             "CULL_NONE"
             "CULL_CW"
             "CULL_CCW"
         ]
-        |> WithSourceName "Cull"
-
-    let State_FillClass =
-        ConstantsType "o3d.State" State_Fill [
+        |> Constants "Fill" State_Fill [
             "POINT"
             "WIREFRAME"
             "SOLID"
         ]
-        |> WithSourceName "Fill"
-
-    let State_StencilOperationClass =
-        ConstantsType "o3d.State" State_StencilOperation [
+        |> Constants "StencilOperation" State_StencilOperation [
             "STENCIL_KEEP"
             "STENCIL_ZERO"
             "STENCIL_REPLACE"
@@ -1490,17 +1433,6 @@ module O3D =
             "STENCIL_INCREMENT"
             "STENCIL_DECREMENT"
         ]
-        |> WithSourceName "StencilOperation"
-
-    let StateClass =
-        Class "o3d.State"
-        |=> State
-        |=> Nested [State_BlendingEquationClass
-                    State_BlendingFunctionClass
-                    State_ComparisonClass
-                    State_CullClass
-                    State_FillClass
-                    State_StencilOperationClass]
         |+> Protocol
             [
                 "getStateParam" => T<string> ^-> Param
@@ -1676,7 +1608,10 @@ module O3D =
     let ClientClass =
         Class "o3d.Client"
         |=> Client
-        |=> Nested [Client_RenderModeClass]
+        |> Constants "RenderMode" Client_RenderMode [
+            "RENDERMODE_CONTINUOUS"
+            "RENDERMODE_ON_DEMAND"
+        ]
         |+> Protocol
             [
                 "cancelFullscreenDisplay" => T<unit> ^-> T<unit>
@@ -1724,14 +1659,6 @@ module O3D =
                 "width" =? T<int>
             ]
 
-    let Counter_CountModeClass =
-        ConstantsType "o3d.Counter.CountMode" Counter_CountMode [
-            "CONTINUOUS"
-            "ONCE"
-            "CYCLE"
-            "OSCILLATE"
-        ]
-
     let CounterClass =
         ClassWithInitArgs "o3d.Counter"
             [
@@ -1743,7 +1670,12 @@ module O3D =
             ]
         |=> Counter
         |=> Inherits ParamObject
-        |=> Nested [Counter_CountModeClass]
+        |> Constants "CountMode" Counter_CountMode [
+            "CONTINUOUS"
+            "ONCE"
+            "CYCLE"
+            "OSCILLATE"
+        ]
         |+> Protocol
             [
                 "addCallback" => T<float> * (T<unit> ^-> T<unit>) ^-> T<unit>
@@ -1767,15 +1699,6 @@ module O3D =
                 "evaluate" => T<float> ^-> T<float>
             ]
 
-    let Curve_InfinityClass =
-        ConstantsType "Infinity" Curve_Infinity [
-            "CONSTANT"
-            "LINEAR"
-            "CYCLE"
-            "CYCLE_RELATIVE"
-            "OSCILLATE"
-        ]
-
     let CurveClass =
         ClassWithInitArgs "o3d.Curve"
             [
@@ -1786,7 +1709,13 @@ module O3D =
             ]
         |=> Curve
         |=> Inherits Function
-        |=> Nested [Curve_InfinityClass]
+        |> Constants "Infinity" Curve_Infinity [
+            "CONSTANT"
+            "LINEAR"
+            "CYCLE"
+            "CYCLE_RELATIVE"
+            "OSCILLATE"
+        ]
         |+> Protocol
             [
                 "addBezierKeys" => Type.ArrayOf T<float> ^-> T<unit>
@@ -2001,16 +1930,6 @@ module O3D =
                 "vertexStreams" => Type.ArrayOf Stream
             ]
 
-    let Primitive_PrimitiveTypeClass =
-        ConstantsType "PrimitiveType" Primitive_PrimitiveType [
-            "POINTLIST"
-            "LINELIST"
-            "LINESTRIP"
-            "TRIANGLELIST"
-            "TRIANGLESTRIP"
-            "TRIANGLEFAN"
-        ]
-
     let PrimitiveClass =
         ClassWithInitArgs "Primitive"
             [
@@ -2022,7 +1941,15 @@ module O3D =
             ]
         |=> Primitive
         |=> Inherits Element
-        |=> Nested [Primitive_PrimitiveTypeClass]
+        |> Constants "PrimitiveType" Primitive_PrimitiveType
+             [
+                "POINTLIST"
+                "LINELIST"
+                "LINESTRIP"
+                "TRIANGLELIST"
+                "TRIANGLESTRIP"
+                "TRIANGLEFAN"
+            ]
         |+> Protocol
             [
                 "primitiveType" =% Primitive_PrimitiveType
@@ -2063,22 +1990,6 @@ module O3D =
         |=> RenderSurfaceSet
         |=> Inherits RenderNode
 
-    let Sampler_AddressModeClass =
-        ConstantsType "Sampler.AddressMode" Sampler_AddressMode [
-            "WRAP"
-            "MIRROR"
-            "CLAMP"
-            "BORDER"
-        ]
-
-    let Sampler_FilterTypeClass =
-        ConstantsType "Sampler.FilterType" Sampler_FilterType [
-            "NONE"
-            "POINT"
-            "LINEAR"
-            "ANISOTROPIC"
-        ]
-
     let SamplerClass =
         ClassWithInitArgs "Sampler"
             [
@@ -2094,7 +2005,18 @@ module O3D =
             ]
         |=> Sampler
         |=> Inherits ParamObject
-        |=> Nested [Sampler_FilterTypeClass; Sampler_AddressModeClass]
+        |> Constants "AddressMode" Sampler_AddressMode [
+            "WRAP"
+            "MIRROR"
+            "CLAMP"
+            "BORDER"
+        ]
+        |> Constants "FilterType" Sampler_FilterType [
+            "NONE"
+            "POINT"
+            "LINEAR"
+            "ANISOTROPIC"
+        ]
 
     let SecondCounterClass =
         Class "SecondCounter"
