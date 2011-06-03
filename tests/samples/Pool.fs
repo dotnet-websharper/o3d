@@ -775,8 +775,158 @@ type Pool [<JavaScript>]() =
     let HandleResizeEvent event =
         UpdateContext()
 
-    let VertexShaderString = JavaScript.Get "value" (Dom.Document.Current.GetElementById "vshader")
-    let PixelShaderString = JavaScript.Get "value" (Dom.Document.Current.GetElementById "pshader")
+    let VertexShaderString = "
+        uniform mat4 worldViewProjection;
+        uniform mat4 worldInverseTranspose;
+        uniform mat4 world;
+
+        attribute vec4 position;
+        attribute vec3 normal;
+
+        varying vec4 vposition;
+        varying vec4 vobjectPosition;
+        varying vec3 vworldPosition;
+        varying vec4 vscreenPosition;
+        varying vec3 vnormal;
+
+        void main() {
+        vposition = worldViewProjection * position;
+        vec4 temp = vposition;
+        temp += temp.w * vec4(1.0, 1.0, 0.0, 0.0);
+        temp.xyz /= 2.0;
+        vscreenPosition = temp;
+        vnormal = (worldInverseTranspose * vec4(normal, 0.0)).xyz;
+        vworldPosition = (world * vec4(position.xyz, 1.0)).xyz;
+        vobjectPosition = position;
+        gl_Position = vposition;
+        }"
+
+    let PixelShaderString = "
+        uniform vec3 lightWorldPosition;
+        uniform vec3 eyeWorldPosition;
+        uniform float factor;
+        uniform float shadowOn;
+
+        uniform sampler2D textureSampler;
+
+        uniform vec2 ballCenter;
+
+        varying vec4 vposition;
+        varying vec4 vobjectPosition;
+        varying vec3 vworldPosition;
+        varying vec4 vscreenPosition;
+        varying vec3 vnormal;
+
+        vec4 roomColor(vec3 p, vec3 r) {
+        vec2 c = vec2(1.0 / 15.0, 1.0 / 30.0) *
+            (p.xy + r.xy * (lightWorldPosition.z - p.z) / r.z);
+
+        float temp = (abs(c.x + c.y) + abs(c.y - c.x));
+        float t = min(0.15 * max(7.0 - temp, 0.0) +
+                    ((temp < 5.0) ? 1.0 : 0.0), 1.0);
+        return vec4(t, t, t, 1.0);
+        }
+
+        vec4 lighting(vec4 pigment, float shininess) {
+        vec3 p = vworldPosition;
+        vec3 l = normalize(lightWorldPosition - p);  // Toward light.
+        vec3 n = normalize(vnormal);                 // Normal.
+        vec3 v = normalize(eyeWorldPosition - p);    // Toward eye.
+        vec3 r = normalize(-reflect(v, n));          // Reflection of v across n.
+
+        return vec4(max(dot(l, n), 0.0) * pigment.xyz +
+            0.2 * pow(max(dot(l, r), 0.0), shininess) * vec3(1, 1, 1), 1.0);
+        }
+
+        vec4 woodPigment(vec3 p) {
+        vec3 core = normalize(
+            (abs(p.y) > abs(p.x) + 1.0) ?
+                vec3(1.0, 0.2, 0.3) : vec3(0.2, 1.0, 0.3));
+        float grainThickness = 0.02;
+        float t =
+            mod(length(p - dot(p,core)*core), grainThickness) / grainThickness;
+
+        return mix(vec4(0.15, 0.05, 0.0, 0.1), vec4(0.1, 0.0, 0.0, 0.1), t);
+        }
+
+        vec4 feltPigment(vec3 p) {
+        return vec4(0.1, 0.45, 0.15, 1.0);
+        }
+
+        vec4 environmentColor(vec3 p, vec3 r) {
+        vec4 upColor = 0.1 * roomColor(p, r);
+        vec4 downColor = -r.z * 0.3 * feltPigment(p);
+        float t = smoothstep(0.0, 0.05, r.z);
+        return mix(downColor, upColor, t);
+        }
+
+        vec4 solidPixelShader() {
+        return vec4(1.0, 1.0, 1.0, 0.2);
+        }
+
+        vec4 feltPixelShader() {
+        vec2 tex = vscreenPosition.xy / vscreenPosition.w;
+
+        vec3 p = factor * vworldPosition;
+        vec3 c = factor * eyeWorldPosition.xyz;
+        float width = 0.3;
+        float height = 0.3;
+        float d =
+            1.0 * (smoothstep(1.0 - width, 1.0 + width, abs(p.x)) +
+                    smoothstep(2.0 - height, 2.0 + height, abs(p.y)));
+        p = vworldPosition;
+
+        return (1.0 - texture2D(textureSampler, tex).x - d) *
+            lighting(feltPigment(p), 4.0);
+        }
+
+        vec4 woodPixelShader() {
+        vec3 p = factor * vworldPosition;
+        return lighting(woodPigment(p), 50.0);
+        }
+
+        vec4 cushionPixelShader() {
+        vec3 p = factor * vworldPosition;
+        return lighting(feltPigment(p), 4.0);
+        }
+
+        vec4 billiardPixelShader() {
+        vec3 p = factor * vworldPosition;
+        return lighting(vec4(0.5, 0.5, 0.2, 1), 30.0);
+        }
+
+        vec4 ballPixelShader() {
+        vec3 p = normalize(vobjectPosition.xyz);
+        vec4 u = 0.5 * vec4(p.x, p.y, p.x, -p.y);
+        u = clamp(u, -0.45, 0.45);
+        u += vec4(0.5, 0.5, 0.5, 0.5);
+
+        float t = clamp(5.0 * p.z, 0.0, 1.0);
+
+        p = vworldPosition;
+        vec3 l = normalize(lightWorldPosition - p); // Toward light.
+        vec3 n = normalize(vnormal);                // Normal.
+        vec3 v = normalize(eyeWorldPosition - p);   // Toward eye.
+        vec3 r = normalize(-reflect(v, n));         // Reflection of v across n.
+
+        vec4 pigment =
+            mix(texture2D(textureSampler, u.zw),
+                texture2D(textureSampler, u.xy), t);
+
+        return 0.4 * environmentColor(p, r) +
+            pigment * (0.3 * smoothstep(0.0, 1.1, dot(n, l)) +
+                        0.3 * (p.z + 1.0));
+        }
+
+        vec4 shadowPlanePixelShader() {
+        vec2 p = vworldPosition.xy - ballCenter;
+        vec2 q = (vworldPosition.xy / lightWorldPosition.z);
+
+        vec2 offset = (1.0 - 1.0 / (vec2(1.0, 1.0) + abs(q))) * sign(q);
+        float t = mix(smoothstep(0.9, 0.0, length(p - length(p) * offset) / 2.0),
+                        smoothstep(1.0, 0.0, length(p) / 10.0), 0.15);
+        return shadowOn * vec4(t, t, t, t);
+        }"
 
     [<JavaScript>]
     let FinishLoadingBitmaps(bitmaps : O3D.Bitmap[], exn) =

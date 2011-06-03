@@ -43,6 +43,8 @@
     <Compile Include="Main.fs" />
     <None Include="Resources.cs" />
     <None Include="Marker.cs" />
+    <EmbeddedResource Include="o3djs.js" />
+    <EmbeddedResource Include="o3d-webgl.js" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core" />
