@@ -56,6 +56,17 @@ type Wall = {
     a : float
     b : float
 }
+with
+    [<JavaScript>]
+    static member ComputeNormals(arr) =
+        arr |> Array.map (fun ((px, py as p) : Float2, (qx, qy as q) : Float2) ->
+            let (tx, ty) = O3DJS.Math.Normalize(O3DJS.Math.Sub(q, p))
+            let nx = tx
+            let ny = -tx
+            { p = p; q = q; nx = nx; ny = ny
+              k = nx * px + ny * py
+              a = py * nx - px * ny
+              b = qy * nx - qx * ny })
 
 type CameraPosition = {
     mutable Center : Float3
@@ -72,7 +83,7 @@ with
           radius = 1. }
 
 type QueueElement = {
-    condition : unit -> bool
+    condition : float -> bool // clock -> bool
     action : unit -> unit
 }
 
@@ -82,6 +93,18 @@ let mutable g_clock = 0.
 let mutable g_queueClock = 0.
 [<JavaScript>]
 let mutable g_shadowOnParams = [||] : O3D.Param<float>[]
+
+type Shot = {
+    Target : Float2
+    Power : float
+    Difficulty : float
+}
+with
+    [<JavaScript>]
+    static member Null =
+        { Target = (0., 0.)
+          Power = 0.
+          Difficulty = infinity }
 
 type CameraInfo = {
     mutable lastX : float
@@ -262,6 +285,12 @@ type Physics[<JavaScript>]() =
 
     [<JavaScript>]
     member this.Balls = balls
+    [<JavaScript>]
+    member this.PocketCenters = pocketCenters
+    [<JavaScript>]
+    member this.SpeedFactor
+        with get() = speedFactor
+        and set value = speedFactor <- value
 
     [<JavaScript>]
     member this.BallOn i =
@@ -320,7 +349,7 @@ type Physics[<JavaScript>]() =
                 ball.Center <- (cx, cy, cz + ball.VerticalAcceleration))
 
     [<JavaScript>]
-    member this.ImpartSpeed(i, (dx, dy, _)) =
+    member this.ImpartSpeed(i, (dx, dy)) =
         let factor = maxSpeed * speedFactor
         let bx, by, bz = balls.[i].Velocity
         balls.[i].Velocity <- (bx + dx*factor, by + dy*factor, bz)
@@ -449,23 +478,14 @@ type Physics[<JavaScript>]() =
                             O3DJS.Math.Matrix4.Translation(translations.[i]),
                             O3DJS.Math.Matrix4.RotationZ(angles.[i])),
                         p))
-                newPath |> Array.mapi (fun j (px, py, _) ->
+                newPath
+                |> Array.mapi (fun j (px, py, _) ->
                     let (qx, qy, _) =
                         if j = Array.length newPath - 1
                         then (0., 0., 0.)
                         else newPath.[j + 1]
-                    let p = (px, py)
-                    let q = (qx, qy)
-                    let d = O3DJS.Math.Sub(q, p)
-                    let (tx, ty) = O3DJS.Math.Normalize d
-                    let nx = ty
-                    let ny = -tx
-                    { p = p; q = q
-                      nx = nx; ny = ny
-                      k = nx * px + ny * py
-                      a = py * nx - px * ny
-                      b = qy * nx - qx * ny})
-            )
+                    (px, py), (qx, qy))
+                |> Wall.ComputeNormals)
             |> Array.concat
 
     [<JavaScript>]
@@ -677,6 +697,7 @@ type Pool [<JavaScript>]() =
     let mutable g_rolling = false
     let mutable g_queue : QueueElement[] = [||]
     let mutable g_physics = new Physics()
+    let mutable g_phi = 0.
 
     [<JavaScript>]
     let SetOptionalParam(material : O3D.Material, name, value : obj) =
@@ -1034,18 +1055,40 @@ type Pool [<JavaScript>]() =
         g_shadowOnParams <- transforms |> Array.map (fun transform ->
             transform.CreateParamFloat("shadowOn", Value = 1.))
 
-    let g_seriousness = 0
-    let g_shooting_timers = [||]
+    let mutable g_seriousness = 0
+    let mutable g_shooting_timers = []
 
+    [<JavaScript>]
     let ComputeShot(i, j,
                     (cx, cy, _ as cueCenter : Float3),
                     (ox, oy, _ as objectCenter : Float3),
-                    (px, py, _ as pocketCenter : Float3)) =
+                    (px, py as pocketCenter : Float2)) =
         let second = O3DJS.Math.Sub((px, py), (cx, cy))
-        let toPocket = O3DJS.Math.Normalize(second)
+        let secondDistance = O3DJS.Math.Length(second)
+        let toPocket = O3DJS.Math.Div(second, secondDistance)
         let toObject = O3DJS.Math.Normalize((ox - cx, ox - cx))
         let cc = if O3DJS.Math.Dot(toObject, toPocket) > 0.8 then 0.4 else 0.
-        () // TODO
+        let cut = O3DJS.Math.Mul(2. + cc, toPocket)
+        let target = O3DJS.Math.Sub((ox, oy), cut)
+        let first = O3DJS.Math.Sub(target, (cx, cy))
+        let firstDistance = O3DJS.Math.Length(first)
+        let cutAmount = 1. - O3DJS.Math.Dot(first, second) / (firstDistance * secondDistance)
+        let power = 0.12 * (firstDistance + secondDistance / (1.01 * cutAmount))
+        let difficulty = cutAmount * cutAmount - 0.5 / (1. + secondDistance / 2.)
+        let difficulty =
+            if difficulty < 1. then
+                let walls =
+                    [| (cx, cy), target
+                       (ox, oy), (px, py) |]
+                    |> Wall.ComputeNormals
+                let collisions = g_physics.CollideWithWalls(walls, 1.99)
+                if List.length collisions > 2 then
+                    difficulty + 10.
+                else difficulty
+            else difficulty
+        { Target = target
+          Power = Math.Min(1., Math.Max(0.1, power))
+          Difficulty = difficulty }
 
     [<JavaScript>]
     let InitTable() =
@@ -1207,7 +1250,7 @@ type Pool [<JavaScript>]() =
         g_clock <- g_clock + event.ElapsedTime
         g_queueClock <- g_queueClock + event.ElapsedTime
         let clock = g_queueClock
-        if g_queue.Length > 0 && g_queue.[0].condition() then
+        if g_queue.Length > 0 && g_queue.[0].condition clock then
             let action = g_queue.[0].action
             g_queue <- Array.sub g_queue 1 (g_queue.Length - 1)
             action()
@@ -1228,12 +1271,41 @@ type Pool [<JavaScript>]() =
         UpdateContext()
 
     [<JavaScript>]
+    let IncreaseFactor() =
+        g_physics.SpeedFactor <- Math.Min(g_physics.SpeedFactor + 0.01, 1.)
+        SetBarScale(g_physics.SpeedFactor)
+
+    [<JavaScript>]
+    let StartShooting() =
+        g_shooting <- true
+        g_shooting_timers <- JavaScript.SetInterval IncreaseFactor (1000/60) :: g_shooting_timers
+
+    [<JavaScript>]
+    let FinishShooting() =
+        g_shooting_timers |> List.iter JavaScript.ClearTimeout
+        g_shooting_timers <- []
+        if g_physics.SpeedFactor > 0. then
+            let (ex, ey, _), (tx, ty, _) = g_cameraInfo.GetEyeAndTarget()
+            let d = O3DJS.Math.Sub((tx, ty), (ex, ey))
+                    |> O3DJS.Math.Normalize
+            g_physics.ImpartSpeed(0, d)
+            g_cameraInfo.BackUp()
+            g_rolling <- true
+            g_barRoot.Visible <- false
+        g_physics.SpeedFactor <- 0.
+        g_seriousness <- 0
+        SetBarScale g_physics.SpeedFactor
+        g_shooting <- false
+
+    [<JavaScript>]
     let KeyPressed() =
         ()
 
     [<JavaScript>]
-    let KeyUp() =
+    let KeyUp(event : Dom.KeyboardEvent) =
         ()
+//        if event.KeyCode = 32 then
+//            FinishShooting()
 
     [<JavaScript>]
     let KeyDown() =
@@ -1334,10 +1406,62 @@ type Pool [<JavaScript>]() =
 
     [<JavaScript>]
     member this.CueNewShot(power) =
-        g_queue <- [||]
+        let cue = g_physics.Balls.[0]
+        g_queue <- Array.append [| {condition = fun clock -> clock > 1.
+                                    action = fun() -> g_cameraInfo.ZoomToPoint cue.Center} |]
+                                g_queue
+        let objectBalls' =
+            Array.sub g_physics.Balls 1 7
+            |> Array.filter (fun ball -> ball.Active)
+        let eight = g_physics.Balls.[8]
+        let objectBalls =
+            if objectBalls'.Length = 0 && eight.Active then
+                [| eight |]
+            else
+                objectBalls'
+        let (current, _) =
+            objectBalls
+            |> Array.fold (fun (current : Shot, i) ball ->
+                let (current, _) =
+                    g_physics.PocketCenters
+                    |> Array.fold (fun (current : Shot, j) (pcx, pcy) ->
+                        let k = g_pocketRadius
+                        let pcx =
+                            if pcx > 1. then pcx - k
+                            elif pcx < -1. then pcx + k
+                            else pcx
+                        let pcy =
+                            if pcy > 1. then pcy - k
+                            elif pcy < -1. then pcy + k
+                            else pcy
+                        let shot = ComputeShot(i, j, cue.Center, ball.Center, (pcx, pcy))
+                        let current =
+                            if shot.Difficulty < current.Difficulty
+                            then shot
+                            else current
+                        (current, j + 1))
+                       (current, 0)
+                (current, i + 1))
+               (Shot.Null, 0)
+        if current.Difficulty <> infinity then
+            let (cx, cy, _) = cue.Center
+            let theta = Math.Atan2(O3DJS.Math.Sub((cx, cy), current.Target))
+            let power = defaultArg power current.Power
+            g_queue <- Array.append
+                [|
+                    { condition = fun _ -> true
+                      action = fun () -> g_cameraInfo.GoTo(None, Some theta, None, Some 0.) }
+                    { condition = fun clock -> clock > 1.5
+                      action = fun () -> StartShooting() }
+                    { condition = fun _ -> g_physics.SpeedFactor >= power
+                      action = fun () -> g_physics.SpeedFactor <- power
+                                         FinishShooting() }
+                    { condition = fun _ -> not (g_shooting || g_rolling)
+                      action = fun () -> this.CueNewShot(None) }
+                |] g_queue
 
     [<JavaScript>]
     member this.InitClient() =
-        g_queue <- [|{ condition = fun () -> not (g_shooting || g_rolling)
-                       action = fun () -> this.CueNewShot 0.9 }|]
+        g_queue <- [|{ condition = fun _ -> not (g_shooting || g_rolling)
+                       action = fun () -> this.CueNewShot (Some 0.9) }|]
         O3DJS.Webgl.MakeClients(Main)

@@ -10,6 +10,6 @@
   <ItemGroup>
     <Content Include="IntelliFactory.WebSharper.O3D.xml" />
     <Content Include="Overview.txt" />
-    <Content Include="Usage.txt" />
+    <Content Include="Differences.txt" />
   </ItemGroup>
 </Project>

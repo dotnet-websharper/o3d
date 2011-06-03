@@ -21,5 +21,9 @@ on top of WebGL. The Chrome plugin has been deprecated by Google in May 2010;
 therefore, although the WebSharper™ extension includes complete functionality
 for both backends, this documentation assumes that WebGL is used.
 
+This WebSharper™ extension embeds a concatenated and minified version of the
+O3D and O3DJS source files. This means that you do not need to use the
+`o3djs.require` function to import functionality.
+
 [o3d-api] http://code.google.com/apis/o3d/docs/api_reference.html
 [o3d-devguide] http://code.google.com/apis/o3d/docs/devguideintro.html
