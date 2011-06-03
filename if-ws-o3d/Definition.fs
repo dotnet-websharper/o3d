@@ -655,8 +655,11 @@ module O3D =
                 "allocateElements" => T<int> ^-> T<bool>
                 "createField" => FieldType * T<int> ^-> Field
                 "createUByteNField" => T<int> ^-> UByteNField
+                |> WithInline "$this.createField('UByteNField', $1)"
                 "createFloatField" => T<int> ^-> FloatField
+                |> WithInline "$this.createField('FloatField', $1)"
                 "createUInt32Field" => T<int> ^-> UInt32Field
+                |> WithInline "$this.createField('UInt32Field', $1)"
                 "removeField" => Field ^-> T<unit>
                 "set" => RawData?data * T<int>?srcoffset * T<int>?length ^-> T<unit>
                 "set" => RawData?data * T<int>?srcoffset ^-> T<unit>
@@ -1613,6 +1616,7 @@ module O3D =
                 "boundingBox", BoundingBox
                 "cull", T<bool>
                 "owner", Shape
+                "material", Material
                 "priority", T<int>
                 "zSortPoint", Float3
             ]
@@ -1998,7 +2002,7 @@ module O3D =
             ]
 
     let Primitive_PrimitiveTypeClass =
-        ConstantsType "Primitive_PrimitiveType" Primitive_PrimitiveType [
+        ConstantsType "PrimitiveType" Primitive_PrimitiveType [
             "POINTLIST"
             "LINELIST"
             "LINESTRIP"
@@ -2013,13 +2017,17 @@ module O3D =
                 "indexBuffer", IndexBuffer
                 "numberPrimitives", T<int>
                 "numberVertices", T<int>
-                "primitiveType", Primitive_PrimitiveType
                 "startIndex", T<int>
                 "streamBank", StreamBank
             ]
         |=> Primitive
         |=> Inherits Element
         |=> Nested [Primitive_PrimitiveTypeClass]
+        |+> Protocol
+            [
+                "primitiveType" =% Primitive_PrimitiveType
+                |> WithSourceName "primitiveType"
+            ]
 
     let ProjectionParamMatrix4Class =
         Class "ProjectionParamMatrix4"
