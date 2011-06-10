@@ -1,5 +1,25 @@
 ﻿% Differences with JavaScript
 
+## Initialization
+
+The standard distribution of O3DJS requires you to use the function
+`o3djs.require` to include the functionality you need, and to set
+the `o3djs.base.o3d` object. This extension, however, includes a
+minified version of the complete O3D and O3DJS source and sets
+`o3djs.base.o3d`. Therefore, the only initialization code needed
+is the following:
+
+    #fsharp
+    [<JavaScript>]
+    let O3dDisplay() =
+        Div [Attr.Id "o3d"; Attr.Style "width: 600px; height: 600px;"]
+        |>! OnAfterRender (fun d ->
+            O3DJS.Webgl.MakeClients (fun clients ->
+                let client = As<O3D.Client> (JavaScript.Get "client" clients.[0])
+                // O3D is now fully initialized, you can load your resources
+            )
+        )
+
 ## Mathematics
 
 O3D manipulates vectors and quaternions as arrays of numbers, and
@@ -42,11 +62,11 @@ is translated into WebSharper as:
 ## Parameters
 
 In O3D, the methods `Pack.createObject`, `Pack.getObjects`,
-`State.getStateParam`, `Curve.createKey` and `ParamObject.createParam`
-return an object whose type depends on the argument passed. This is
-not suitable for use in F#. Therefore, these methods have been
-translated into series of individual methods, each of which handles
-one of the possible return types.
+`State.getStateParam`, `Curve.createKey`, `Buffer.createField` and
+`ParamObject.createParam` return an object whose type depends on the
+argument passed. This is not suitable for use in F#. Therefore, these
+methods have been translated into series of individual methods, each
+of which handles one of the possible return types.
 
 For example, the following JavaScript snippet:
 
@@ -58,14 +78,19 @@ For example, the following JavaScript snippet:
 translates into:
 
     #fsharp
-    let transform = pack.CreateTransform(Parent = root)
-    let myParam = transform.CreateParamFloat2("objectCenter")
+    let transform = pack.CreateTransform()
+    transform.Parent <- root
+    let myParam = transform.CreateParamFloat2 "objectCenter"
 
 In JavaScript, the type of `myParam` is `ParamFloat2`. In WebSharper, we
 use a parameterized type: the type of `myParam` is `Param<float * float>`.
 
-Note also how we used property assignment to shorten the construction
-of `transform` into a single line.
+Note also that you can use property assignment to shorten the construction
+of `transform` into a single line:
+
+    #fsharp
+    let transform = pack.CreateTransform(Parent = root)
+    let myParam = transform.CreateParamFloat2 "objectCenter"
 
 
 [o3d-pool] http://code.google.com/p/o3d/source/browse/trunk/samples_webgl/o3d-webgl-samples/pool.html

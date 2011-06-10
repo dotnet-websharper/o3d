@@ -70,17 +70,17 @@ with
 
 type CameraPosition = {
     mutable Center : Float3
-    mutable theta : float
-    mutable phi : float
-    mutable radius : float
+    mutable Theta : float
+    mutable Phi : float
+    mutable Radius : float
 }
 with
     [<JavaScript>]
     static member Create() =
         { Center = (0., 0., 0.)
-          theta = 0.
-          phi = 0.
-          radius = 1. }
+          Theta = 0.
+          Phi = 0.
+          Radius = 1. }
 
 type QueueElement = {
     condition : float -> bool // clock -> bool
@@ -123,18 +123,18 @@ with
 
     [<JavaScript>]
     member this.Update(x, y) =
-        this.targetPosition.theta <- this.targetPosition.theta - (x - this.lastX) / 200.
-        this.targetPosition.phi <- this.targetPosition.phi + (x - this.lastY) / 200.
+        this.targetPosition.Theta <- this.targetPosition.Theta - (x - this.lastX) / 200.
+        this.targetPosition.Phi <- this.targetPosition.Phi + (y - this.lastY) / 200.
         this.Bound()
         this.lastX <- x
         this.lastY <- y
 
     [<JavaScript>]
     member this.Bound() =
-        if this.position.phi < 0.01 then
-            this.position.phi <- 0.01
-        if this.position.phi > System.Math.PI / 2. - 0.01 then
-            this.position.phi <- System.Math.PI / 2. - 0.01
+        if this.position.Phi < 0.01 then
+            this.position.Phi <- 0.01
+        if this.position.Phi > System.Math.PI / 2. - 0.01 then
+            this.position.Phi <- System.Math.PI / 2. - 0.01
 
     [<JavaScript>]
     member this.GetCurrentPosition() =
@@ -144,40 +144,40 @@ with
         let b = this.targetPosition
         { Center = O3DJS.Math.Add(O3DJS.Math.Mul(1. - t, a.Center),
                                   O3DJS.Math.Mul(t, b.Center))
-          radius = (1. - t) * a.radius + t * b.radius
-          theta = (1. - t) * a.theta + t * b.theta
-          phi = (1. - t) * a.phi + t * b.phi }
+          Radius = (1. - t) * a.Radius + t * b.Radius
+          Theta = (1. - t) * a.Theta + t * b.Theta
+          Phi = (1. - t) * a.Phi + t * b.Phi }
 
     [<JavaScript>]
     member this.GetEyeAndTarget() =
         let p = this.GetCurrentPosition()
-        let cosPhi = Math.Cos p.phi
+        let cosPhi = Math.Cos p.Phi
         let target = p.Center
-        let eye = O3DJS.Math.Add(target, O3DJS.Math.Mul(p.radius, (cosPhi * Math.Cos p.theta,
-                                                                   cosPhi * Math.Sin p.theta,
-                                                                   Math.Sin p.phi)))
+        let eye = O3DJS.Math.Add(target, O3DJS.Math.Mul(p.Radius, (cosPhi * Math.Cos p.Theta,
+                                                                   cosPhi * Math.Sin p.Theta,
+                                                                   Math.Sin p.Phi)))
         (eye, target)
 
     [<JavaScript>]
     member this.GoTo(center, theta, phi, radius) =
         let center = defaultArg center this.targetPosition.Center
-        let theta = defaultArg theta this.targetPosition.theta
-        let phi = defaultArg phi this.targetPosition.phi
-        let radius = defaultArg radius this.targetPosition.radius
+        let theta = defaultArg theta this.targetPosition.Theta
+        let phi = defaultArg phi this.targetPosition.Phi
+        let radius = defaultArg radius this.targetPosition.Radius
         let p = this.GetCurrentPosition()
         this.position <- p
         this.targetPosition.Center <- center
-        this.targetPosition.theta <- theta
-        this.targetPosition.phi <- phi
-        this.targetPosition.radius <- radius
+        this.targetPosition.Theta <- theta
+        this.targetPosition.Phi <- phi
+        this.targetPosition.Radius <- radius
         this.lerpCoefficient <- 0.
         this.startingTime <- g_clock
         let k = 3. * System.Math.PI / 2.
         let myMod n m = ((n % m) + m) % m
-        this.position.theta <-
-            myMod (this.position.theta + k) (2.*System.Math.PI) - k
-        this.targetPosition.theta <-
-            myMod (this.targetPosition.theta + k) (2.*System.Math.PI) - k
+        this.position.Theta <-
+            myMod (this.position.Theta + k) (2.*System.Math.PI) - k
+        this.targetPosition.Theta <-
+            myMod (this.targetPosition.Theta + k) (2.*System.Math.PI) - k
 
     [<JavaScript>]
     member this.BackUp() =
@@ -186,16 +186,16 @@ with
 
     [<JavaScript>]
     member this.ZoomToPoint(center) =
-        this.GoTo(Some center, Some this.targetPosition.theta, Some (System.Math.PI/20.), Some 20.)
+        this.GoTo(Some center, Some this.targetPosition.Theta, Some (System.Math.PI/20.), Some 20.)
 
     [<JavaScript>]
     member this.UpdateClock() =
         this.lerpCoefficient <- min 1. (g_clock - this.startingTime)
         if this.lerpCoefficient = 1. then
             this.position.Center <- this.targetPosition.Center
-            this.position.theta <- this.targetPosition.theta
-            this.position.phi <- this.targetPosition.phi
-            this.position.radius <- this.targetPosition.radius
+            this.position.Theta <- this.targetPosition.Theta
+            this.position.Phi <- this.targetPosition.Phi
+            this.position.Radius <- this.targetPosition.Radius
 
     [<JavaScript>]
     member this.LookingAt(center) =
@@ -251,9 +251,9 @@ type Physics[<JavaScript>]() =
         let y = 0.5 * root2 * r - 2. * w
         [| (w, 0.); (-w, 0.); (x, y); (-x, y); (x, -y); (-x, -y) |]
     [<JavaScript>]
-    let left = g_tableWidth / 2. + g_pocketRadius + 1.
+    let left = -g_tableWidth / 2. + g_pocketRadius + 1.
     [<JavaScript>]
-    let right = g_tableWidth / 2. + g_pocketRadius - 1.
+    let right = g_tableWidth / 2. - g_pocketRadius - 1.
     [<JavaScript>]
     let top = g_tableWidth - g_pocketRadius - 1.
     [<JavaScript>]
@@ -278,7 +278,7 @@ type Physics[<JavaScript>]() =
     let mutable wallCollisions = []
 
     [<JavaScript>]
-    let vectorToQuaternion ((r0, r1, r2) as r) =
+    let vectorToQuaternion ((r0, r1, r2) as r, ()) =
         let theta = O3DJS.Math.Length r
         let stot = if theta < 1.0e-6 then 1. else sin(theta/2.) / theta
         (stot * r0, stot * r1, stot * r2, Math.Cos(theta))
@@ -343,16 +343,17 @@ type Physics[<JavaScript>]() =
         balls |> Array.iter (fun ball ->
             if ball.Active then
                 let (cx, cy, cz) = O3DJS.Math.Add(ball.Center, O3DJS.Math.Mul(timeStep, ball.Velocity))
-                ball.Orientation <- O3DJS.Math.Mul(vectorToQuaternion(O3DJS.Math.Mul(timeStep, ball.AngularVelocity)),
-                                             ball.Orientation)
+                let vec = O3DJS.Math.Mul(timeStep, ball.AngularVelocity)
+                ball.Orientation <- O3DJS.Math.Mul(vectorToQuaternion(vec,()), ball.Orientation)
                                     |> O3DJS.Quaternions.Normalize
                 ball.Center <- (cx, cy, cz + ball.VerticalAcceleration))
 
     [<JavaScript>]
     member this.ImpartSpeed(i, (dx, dy)) =
+        let ball = balls.[i]
         let factor = maxSpeed * speedFactor
-        let bx, by, bz = balls.[i].Velocity
-        balls.[i].Velocity <- (bx + dx*factor, by + dy*factor, bz)
+        let bx, by, bz = ball.Velocity
+        ball.Velocity <- (bx + dx*factor, by + dy*factor, bz)
 
     [<JavaScript>]
     member this.StopAllBalls() =
@@ -426,14 +427,13 @@ type Physics[<JavaScript>]() =
     [<JavaScript>]
     member this.Collide() =
         this.CollideBalls()
-        // this.CollideWithWalls()
-        not (List.isEmpty collisions) && not (List.isEmpty wallCollisions)
+        this.CollideWithWalls()
+        not (List.isEmpty collisions && List.isEmpty wallCollisions)
 
     [<JavaScript>]
     member this.PushOut() =
         while this.Collide() do
-            // this.PushCollisions()
-            ()
+            this.PushCollisions()
 
     [<JavaScript>]
     member this.CollideBalls() =
@@ -471,51 +471,50 @@ type Physics[<JavaScript>]() =
                                             [|  0.; w/2.; 0.|]
                                             [|  0.;   0.; 1.|]|])
         walls <-
-            Seq.init 6 (fun i ->
+            Array.init 6 (fun i ->
                 let newPath = path |> Array.mapi (fun j p ->
                     O3DJS.Math.Matrix4.TransformPoint(
                         O3DJS.Math.Matrix4.Composition(
                             O3DJS.Math.Matrix4.Translation(translations.[i]),
                             O3DJS.Math.Matrix4.RotationZ(angles.[i])),
                         p))
-                newPath
-                |> Array.mapi (fun j (px, py, _) ->
-                    let (qx, qy, _) =
-                        if j = Array.length newPath - 1
-                        then (0., 0., 0.)
-                        else newPath.[j + 1]
-                    (px, py), (qx, qy))
-                |> Wall.ComputeNormals)
+                Array.init (newPath.Length - 1) (fun j ->
+                    let (px, py, _) = newPath.[j]
+                    let (qx, qy, _) = newPath.[j + 1]
+                    (px, py), (qx, qy)))
             |> Array.concat
+            |> Wall.ComputeNormals
 
     [<JavaScript>]
     member this.CollideWithWalls(wallList, radius) =
-        seq {
-            for i = 0 to 15 do
-                let ball = balls.[i]
-                if ball.Active then
-                    let (x, y, _) = ball.Center
-                    if not (x > left && x < right &&
-                            y > bottom && y < top) then
-                        for wall in wallList do
-                            let norm = abs (x * wall.nx + y * wall.ny - wall.k)
-                            if norm < radius then
-                                let t = y * wall.nx - x * wall.ny
-                                if t > wall.a && t < wall.b then
-                                    yield { i = i; x = wall.nx; y = wall.ny; ammt = 1. - norm }
-                                else
-                                    let (dx, dy) as d = O3DJS.Math.Sub((x, y), wall.p)
-                                    let normSquared = O3DJS.Math.LengthSquared d
-                                    if normSquared < radius * radius then
-                                        let norm = Math.Sqrt normSquared
-                                        yield { i = i; x = dx / norm; y = dy / norm; ammt = 1. - norm }
-                                    else
-                                        let (dx, dy) as d = O3DJS.Math.Sub((x, y), wall.q)
-                                        let normSquared = O3DJS.Math.LengthSquared d
-                                        if normSquared < radius * radius then
-                                            let norm = Math.Sqrt normSquared
-                                            yield { i = i; x = dx / norm; y = dy / norm; ammt = 1. - norm }
-        } |> Seq.toList
+        List.init 16 (fun i ->
+            let ball = balls.[i]
+            let (x, y, _) = ball.Center
+            if ball.Active && not (x > left && x < right &&
+                                   y > bottom && y < top) then
+                walls
+                |> Seq.tryPick (fun wall ->
+                    let norm = abs (x * wall.nx + y * wall.ny - wall.k)
+                    if norm < radius then
+                        let t = y * wall.nx - x * wall.ny
+                        if t > wall.a && t < wall.b then
+                            Some {i = i; x = wall.nx; y = wall.ny; ammt = 1. - norm}
+                        else
+                            let (dx, dy) as d = O3DJS.Math.Sub((x, y), wall.p)
+                            let normSquared = O3DJS.Math.LengthSquared d
+                            if normSquared < radius * radius then
+                                let norm = Math.Sqrt normSquared
+                                Some {i = i; x = dx / norm; y = dy / norm; ammt = 1. - norm}
+                            else
+                                let (dx, dy) as d = O3DJS.Math.Sub((x, y), wall.q)
+                                let normSquared = O3DJS.Math.LengthSquared d
+                                if normSquared < radius * radius then
+                                    let norm = Math.Sqrt normSquared
+                                    Some {i = i; x = dx / norm; y = dy / norm; ammt = 1. - norm}
+                                else None
+                    else None)
+            else None)
+        |> List.choose id
 
     [<JavaScript>]
     member this.CollideWithWalls() =
@@ -702,7 +701,7 @@ type Pool [<JavaScript>]() =
     [<JavaScript>]
     let SetOptionalParam(material : O3D.Material, name, value : obj) =
         let param = material.GetParam name
-        if param <> null then
+        if As<bool> param then
             param.Value <- value
 
     [<JavaScript>]
@@ -720,24 +719,26 @@ type Pool [<JavaScript>]() =
         g_shadowPassViewInfo.DrawContext.Projection <- perspective
         g_viewInfo.DrawContext.Projection <- perspective
         let eye, target = g_cameraInfo.GetEyeAndTarget()
-        g_shadowPassViewInfo.DrawContext.View <- O3DJS.Math.Matrix4.LookAt(eye, target, (0., 0., 1.))
+        let view = O3DJS.Math.Matrix4.LookAt(eye, target, (0., 0., 1.))
+        g_shadowPassViewInfo.DrawContext.View <- view
+        g_viewInfo.DrawContext.View <- view
         UpdateMaterials()
 
     [<JavaScript>]
-    let StartDragging(e : Dom.MouseEvent) =
-        g_cameraInfo.Begin(float e.ClientX, float e.ClientY)
+    let StartDragging(e : O3D.Event) =
+        g_cameraInfo.Begin(float e.X, float e.Y)
         g_dragging <- true
 
     [<JavaScript>]
-    let Drag(e : Dom.MouseEvent) =
+    let Drag(e : O3D.Event) =
         if g_dragging then
-            g_cameraInfo.Update(float e.ClientX, float e.ClientY)
+            g_cameraInfo.Update(float e.X, float e.Y)
             UpdateContext()
 
     [<JavaScript>]
-    let StopDragging(e : Dom.MouseEvent) =
+    let StopDragging(e : O3D.Event) =
         if g_dragging then
-            g_cameraInfo.Update(float e.ClientX, float e.ClientY)
+            g_cameraInfo.Update(float e.X, float e.Y)
             UpdateContext()
         g_dragging <- false
 
@@ -749,24 +750,18 @@ type Pool [<JavaScript>]() =
     let InitGlobals(clientElements : Dom.Element[]) =
         g_o3dElement <- clientElements.[0]
         g_client <- JavaScript.Get "client" g_o3dElement
-        O3DJS.Base.O3D <- JavaScript.Get "o3d" g_o3dElement
         g_pack <- g_client.CreatePack()
 
     [<JavaScript>]
     let InitRenderGraph() =
-        g_tableRoot <- g_pack.CreateTransform()
-        g_tableRoot.Parent <- g_client.Root
-        g_shadowRoot <- g_pack.CreateTransform()
-        g_shadowRoot.Parent <- g_client.Root
-        g_hudRoot <- g_pack.CreateTransform()
-        g_hudRoot.Parent <- g_client.Root
-        let viewRoot = g_pack.CreateRenderNode()
-        viewRoot.Priority <- 1.
+        g_tableRoot <- g_pack.CreateTransform(Parent = g_client.Root)
+        g_shadowRoot <- g_pack.CreateTransform(Parent = g_client.Root)
+        g_hudRoot <- g_pack.CreateTransform(Parent = g_client.Root)
+        let viewRoot = g_pack.CreateRenderNode(Priority = 1.)
         if not SHADOWPOV then
             viewRoot.Parent <- g_client.RenderGraphRoot
-        let shadowPassRoot = g_pack.CreateRenderNode()
-        shadowPassRoot.Priority <- 0.
-        shadowPassRoot.Parent <- g_client.RenderGraphRoot
+        let shadowPassRoot = g_pack.CreateRenderNode(Priority = 0.,
+                                                     Parent = g_client.RenderGraphRoot)
         g_viewInfo <- O3DJS.Rendergraph.CreateBasicView(g_pack, g_tableRoot, viewRoot, (0., 0., 0., 1.))
         let hudRenderRoot =
             if SHADOWPOV then null
@@ -778,17 +773,17 @@ type Pool [<JavaScript>]() =
         g_hudViewInfo.ZOrderedState.GetStateParamZWriteEnable.Value <- false
         g_hudViewInfo.DrawContext.Projection <- O3DJS.Math.Matrix4.Orthographic(0., 1., 0., 1., -10., 10.)
         g_hudViewInfo.DrawContext.View <- O3DJS.Math.Matrix4.LookAt((0., 0., 1.),
-                                                                  (0., 0., 0.),
-                                                                  (0., 1., 0.))
+                                                                    (0., 0., 0.),
+                                                                    (0., 1., 0.))
         g_shadowTexture <- g_pack.CreateTexture2D(RENDER_TARGET_WIDTH, RENDER_TARGET_HEIGHT,
                                               O3D.Texture.XRGB8, 1, true)
         let renderSurface = g_shadowTexture.GetRenderSurface 0
         let depthSurface = g_pack.CreateDepthStencilSurface(RENDER_TARGET_WIDTH, RENDER_TARGET_HEIGHT)
         let renderSurfaceSet = g_pack.CreateRenderSurfaceSet(RenderSurface = renderSurface,
-                                                           RenderDepthStencilSurface = depthSurface,
-                                                           Parent = shadowPassRoot)
-        let shadowPassParent = if SHADOWPOV then renderSurfaceSet :> O3D.RenderNode
-                                            else g_client.RenderGraphRoot
+                                                             RenderDepthStencilSurface = depthSurface,
+                                                             Parent = shadowPassRoot)
+        let shadowPassParent = if SHADOWPOV then g_client.RenderGraphRoot
+                                            else renderSurfaceSet :> O3D.RenderNode
         g_shadowPassViewInfo <- O3DJS.Rendergraph.CreateBasicView(g_pack, g_shadowRoot, shadowPassParent, (0., 0., 0., 1.))
         g_shadowPassViewInfo.ZOrderedState.GetStateParamZComparisonFunction.Value <- O3D.State.CMP_ALWAYS
 
@@ -855,6 +850,8 @@ type Pool [<JavaScript>]() =
         vec3 v = normalize(eyeWorldPosition - p);    // Toward eye.
         vec3 r = normalize(-reflect(v, n));          // Reflection of v across n.
 
+        // return vec4(n, 1.);
+
         return vec4(max(dot(l, n), 0.0) * pigment.xyz +
             0.2 * pow(max(dot(l, r), 0.0), shininess) * vec3(1, 1, 1), 1.0);
         }
@@ -910,7 +907,7 @@ type Pool [<JavaScript>]() =
         vec3 p = factor * vworldPosition;
         return lighting(feltPigment(p), 4.0);
         }
-
+ 
         vec4 billiardPixelShader() {
         vec3 p = factor * vworldPosition;
         return lighting(vec4(0.5, 0.5, 0.2, 1), 30.0);
@@ -969,29 +966,25 @@ type Pool [<JavaScript>]() =
 
     [<JavaScript>]
     let InitMaterials() =
-        g_materials <-
-            [|"solid"; "felt"; "wood"; "cushion"; "billiard"; "ball"; "shadowPlane"|]
-            |> Array.fold (fun materials name ->
-                let material = g_pack.CreateMaterial()
-                let effect = g_pack.CreateEffect()
-                let mainString = "void main() { gl_FragColor = " + name + "PixelShader(); }"
-                ignore <| effect.LoadVertexShaderFromString VertexShaderString
-                ignore <| effect.LoadPixelShaderFromString (PixelShaderString + mainString)
-                material.Effect <- effect
-                effect.CreateUniformParameters material
-                material.DrawList <- g_viewInfo.PerformanceDrawList
-                let eye, target = g_cameraInfo.GetEyeAndTarget()
-                SetOptionalParam(material, "factor", 2. / g_tableWidth)
-                SetOptionalParam(material, "lightWorldPosition", g_light)
-                SetOptionalParam(material, "eyeWorldPosition", eye)
-                JavaScript.Set materials name material
-                materials
-               ) (new obj())
+        g_materials <- new obj()
+        [|"solid"; "felt"; "wood"; "cushion"; "billiard"; "ball"; "shadowPlane"|]
+        |> Array.iter (fun name ->
+            let effect = g_pack.CreateEffect()
+            let mainString = "void main() { gl_FragColor = " + name + "PixelShader(); }"
+            ignore <| effect.LoadVertexShaderFromString VertexShaderString
+            ignore <| effect.LoadPixelShaderFromString (PixelShaderString + mainString)
+            let material = g_pack.CreateMaterial(Effect = effect,
+                                                 DrawList = g_viewInfo.PerformanceDrawList)
+            JavaScript.Set g_materials name material
+            effect.CreateUniformParameters material
+            let eye, target = g_cameraInfo.GetEyeAndTarget()
+            SetOptionalParam(material, "factor", 2. / g_tableWidth)
+            SetOptionalParam(material, "lightWorldPosition", g_light)
+            SetOptionalParam(material, "eyeWorldPosition", eye))
         g_solidMaterial <- JavaScript.Get "solid" g_materials
         g_solidMaterial.DrawList <- g_hudViewInfo.ZOrderedDrawList
         (As<O3D.Material> <| JavaScript.Get "shadowPlane" g_materials).DrawList <- g_shadowPassViewInfo.ZOrderedDrawList
-        g_shadowSampler <- g_pack.CreateSampler()
-        g_shadowSampler.Texture <- g_shadowTexture
+        g_shadowSampler <- g_pack.CreateSampler(Texture = g_shadowTexture)
         ((As<O3D.Material> <| JavaScript.Get "felt" g_materials).GetParam "textureSampler").Value <- g_shadowSampler
         O3DJS.Io.LoadBitmaps(g_pack,
                              O3DJS.Util.GetAbsoluteURI("../assets/poolballs.png"),
@@ -1012,15 +1005,15 @@ type Pool [<JavaScript>]() =
                 let v = vertexPositions.[face_j]
                 positionStream.AddElementVector v
                 normalStream.AddElementVector n)
-            vertexInfo.AddTriangle(0, 1, 2)
-            vertexInfo.AddTriangle(0, 2, 3)
+            vertexInfo.AddTriangle(faceFirstIndex, faceFirstIndex+1, faceFirstIndex+2)
+            vertexInfo.AddTriangle(faceFirstIndex, faceFirstIndex+2, faceFirstIndex+3)
             vertexCount + 4) 0
         |> ignore
         vertexInfo.CreateShape(g_pack, material)
 
     [<JavaScript>]
     let Arc((centerX, centerY), radius, start, end', steps) =
-        Array.init steps (fun i ->
+        Array.init (steps + 1) (fun i ->
             let theta = start + float i * (end' - start) / float steps
             [|centerX + radius * Math.Cos theta; centerY + radius * Math.Sin theta|])
 
@@ -1096,10 +1089,11 @@ type Pool [<JavaScript>]() =
         let woodMaterial = JavaScript.Get "wood" g_materials
         let cushionMaterial = JavaScript.Get "cushion" g_materials
         let billiardMaterial = JavaScript.Get "billiard" g_materials
+        let mutable shapes = [||]
         let root = g_pack.CreateTransform(Parent = g_tableRoot)
-        let g_tableRoot = g_pack.CreateTransform(Parent = root)
-        g_tableRoot.Translate(0., 0., -g_tableThickness / 2. - 1.)
-        let cushionRoot = g_pack.CreateTransform(Parent = g_tableRoot)
+        let tableRoot = g_pack.CreateTransform(Parent = root)
+        tableRoot.Translate(0., 0., -g_tableThickness / 2. - 1.)
+        let cushionRoot = g_pack.CreateTransform(Parent = tableRoot)
         let ballRoot = g_pack.CreateTransform(Parent = root)
         let root2 = Math.Sqrt 2.
         let scaledPocketRadius = 2. * g_pocketRadius / g_tableWidth
@@ -1147,11 +1141,12 @@ type Pool [<JavaScript>]() =
         let wood_polygons = ij |> Array.map (fun ij -> Flip(wood_polygon, ij))
         let felt_shapes = felt_polygons |> Array.map (fun poly ->
             O3DJS.Primitives.CreatePrism(g_pack, feltMaterial, poly, g_tableThickness))
+        shapes <- Array.append shapes felt_shapes
         let wood_shapes = wood_polygons |> Array.map (fun poly ->
-            O3DJS.Primitives.CreatePrism(g_pack, woodMaterial, poly, g_tableThickness))
-        let t = g_pack.CreateTransform(Parent = g_tableRoot)
-        felt_shapes |> Array.iter t.AddShape
-        wood_shapes |> Array.iter t.AddShape
+            O3DJS.Primitives.CreatePrism(g_pack, woodMaterial, poly, g_tableThickness + 2. * g_woodHeight))
+        shapes <- Array.append shapes wood_shapes
+        let t = g_pack.CreateTransform(Parent = tableRoot)
+        shapes |> Array.iter t.AddShape
 
         let cushionHeight = 1.1 * g_woodHeight
         let cushionUp = g_tableThickness / 2.
@@ -1179,7 +1174,7 @@ type Pool [<JavaScript>]() =
         let billiardSpacing = g_tableWidth/4.
 
         let billiards =
-            [|-1.; 1.|] |> Array.map (fun i ->
+            [|-1.; 0.; 1.|] |> Array.map (fun i ->
                 O3DJS.Primitives.CreatePrism(g_pack, billiardMaterial,
                                              [| (billiardOut + billiardBreadth / 2., i * billiardSpacing)
                                                 (billiardOut, billiardDepth + i * billiardSpacing)
@@ -1204,17 +1199,20 @@ type Pool [<JavaScript>]() =
                                  (3, 2, 6, 7)
                                  (0, 3, 7, 4) |]
             let cushion = FlatMesh(cushionMaterial, vertexPositions, faceIndices)
+            shapes <- Array.append shapes [|cushion|]
             let t = g_pack.CreateTransform(LocalMatrix = O3DJS.Math.Mul(O3DJS.Math.Matrix4.RotationZ(angles.[i]),
                                                                         O3DJS.Math.Matrix4.Translation(translations.[i])),
-                                         Parent = cushionRoot)
+                                           Parent = cushionRoot)
             t.AddShape cushion
             billiards |> Array.iter t.AddShape
-            let ball = O3DJS.Primitives.CreateSphere(g_pack, JavaScript.Get "ball" g_materials, 1., 50, 70)
-            for i = 0 to 15 do
-                let transform = g_pack.CreateTransform(Parent = ballRoot)
-                g_ballTextureSamplerParams.[i] <- transform.CreateParamSampler "textureSampler"
-                g_ballTransforms.[i] <- transform
-                transform.AddShape ball
+        shapes <- Array.append shapes billiards
+        let ball = O3DJS.Primitives.CreateSphere(g_pack, JavaScript.Get "ball" g_materials, 1., 50, 70)
+        shapes <- Array.append shapes [|ball|]
+        for i = 0 to 15 do
+            let transform = g_pack.CreateTransform(Parent = ballRoot)
+            g_ballTextureSamplerParams.[i] <- transform.CreateParamSampler "textureSampler"
+            g_ballTransforms.[i] <- transform
+            transform.AddShape ball
 
     [<JavaScript>]
     let InitHud() =
@@ -1234,7 +1232,6 @@ type Pool [<JavaScript>]() =
                                                       (0.,-1., 0., 0.),
                                                       (0., 0., 0., 1.)))
         barT2.AddShape(plane)
-        //backT2.AddShape(backPlane)
         barT1.Translate((0.05, 0.05, 0.))
         barT1.Scale((0.05, 0.9, 1.))
         g_barScaling.LocalMatrix <- O3DJS.Math.Matrix4.Scaling((1., 0., 1.))
@@ -1298,24 +1295,6 @@ type Pool [<JavaScript>]() =
         g_shooting <- false
 
     [<JavaScript>]
-    let KeyPressed() =
-        ()
-
-    [<JavaScript>]
-    let KeyUp(event : Dom.KeyboardEvent) =
-        ()
-//        if event.KeyCode = 32 then
-//            FinishShooting()
-
-    [<JavaScript>]
-    let KeyDown() =
-        ()
-
-    [<JavaScript>]
-    let ScrollWheel() =
-        ()
-
-    [<JavaScript>]
     let Rack(game) =
         let root3 = Math.Sqrt 3.
         let yOffset = 6. * g_tableWidth / 12.
@@ -1375,6 +1354,81 @@ type Pool [<JavaScript>]() =
         g_physics.RandomOrientations()
         g_physics.PlaceBalls()
         g_cameraInfo.GoTo(Some (0., 0., 0.), Some (-System.Math.PI/2.), Some (System.Math.PI/6.), Some 140.)
+
+    [<JavaScript>]
+    let KeyUp(event : O3D.Event) =
+       if event.KeyCode = 32 then
+           FinishShooting()
+
+    [<JavaScript>]
+    let KeyDown(event : O3D.Event) =
+        ()
+
+    [<JavaScript>]
+    let ZoomIn() =
+        g_cameraInfo.targetPosition.Radius <- g_cameraInfo.targetPosition.Radius * 0.9
+
+    [<JavaScript>]
+    let ZoomOut() =
+        g_cameraInfo.targetPosition.Radius <- g_cameraInfo.targetPosition.Radius / 0.9
+
+    [<JavaScript>]
+    let ScrollWheel(event : O3D.Event) =
+        if event.DeltaY > 0 then
+            ZoomIn()
+        else
+            ZoomOut()
+
+    [<JavaScript>]
+    let KeyPressed(event : O3D.Event) =
+        let keyChar = (String.FromCharCode [|O3DJS.Event.GetEventKeyChar(event)|]).ToLower()
+        let spotDelta = 1.
+        let cueBall = g_physics.Balls.[0]
+        let (x, y, _) = cueBall.Center
+        match keyChar with
+        | "*" ->
+            Rack 8
+        | "(" ->
+            Rack 9
+        | ")" ->
+            Rack 0
+        | "d" ->
+            g_physics.BallOn 0
+            g_physics.PlaceBall(0, (x + spotDelta, y, 0.))
+            g_physics.BoundCueBall()
+        | "a" ->
+            g_physics.BallOn 0
+            g_physics.PlaceBall(0, (x - spotDelta, y, 0.))
+            g_physics.BoundCueBall()
+        | "s" ->
+            g_physics.BallOn 0
+            g_physics.PlaceBall(0, (x, y - spotDelta, 0.))
+            g_physics.BoundCueBall()
+        | "w" ->
+            g_physics.BallOn 0
+            g_physics.PlaceBall(0, (x, y + spotDelta, 0.))
+            g_physics.BoundCueBall()
+        | "c" ->
+            g_cameraInfo.ZoomToPoint g_physics.Balls.[0].Center
+            if not g_rolling then
+                g_barRoot.Visible <- true
+        | "t" ->
+            g_cameraInfo.GoTo(Some (0., 0., 0.), None, None, Some 100.)
+        | "=" | "+" ->
+            ZoomIn()
+        | "-" | "_" ->
+            ZoomOut()
+        | " " ->
+            if not (g_cameraInfo.LookingAt g_physics.Balls.[0].Center) then
+                g_cameraInfo.ZoomToPoint g_physics.Balls.[0].Center
+                if not g_rolling then
+                    g_barRoot.Visible <- true
+            else
+                if g_seriousness > 1 then
+                    if not (g_rolling || g_shooting) then
+                        StartShooting()
+                g_seriousness <- g_seriousness + 1
+        UpdateContext()
 
     [<JavaScript>]
     let SetRenderCallback() =
@@ -1462,6 +1516,4 @@ type Pool [<JavaScript>]() =
 
     [<JavaScript>]
     member this.InitClient() =
-        g_queue <- [|{ condition = fun _ -> not (g_shooting || g_rolling)
-                       action = fun () -> this.CueNewShot (Some 0.9) }|]
         O3DJS.Webgl.MakeClients(Main)

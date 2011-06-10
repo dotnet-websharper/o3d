@@ -26,22 +26,22 @@ module O3D =
                     |> WithGetterInline ("\"" + s + "\"")
                     :> CodeModel.IClassMember))
 
-        let ConstantsType name (t : Type.Type) strings =
-            Class name
-            |=> t
-            |+> (strings
-                 |> List.map (fun s ->
-                    s =% t
-                    // |> WithGetterInline (name + "." + s)
-                    :> CodeModel.IClassMember))
+//        let ConstantsType name (t : Type.Type) strings =
+//            Class name
+//            |=> t
+//            |+> (strings
+//                 |> List.map (fun s ->
+//                    s =% t
+//                    // |> WithGetterInline (name + "." + s)
+//                    :> CodeModel.IClassMember))
 
         let Constants name (subT : Type.Type) strings = fun t ->
             let c = Class name |=> subT
             let fields =
                 strings
                 |> List.map (fun s ->
-                    s =% subT
-//                    |> WithGetterInline (name + "." + s)
+                    s =? subT
+                    // |> WithGetterInline (name + "." + s)
                     :> CodeModel.IClassMember)
             t
             |=> Nested [c]
@@ -507,7 +507,7 @@ module O3D =
                 |> WithSourceName "format"
                 "levels" =? T<int>
             ]
-        |> Constants "Format" Texture_Format [
+        |> Constants "o3d.Format" Texture_Format [
             "UNKNOWN_FORMAT"
             "XRGB8"
             "ARGB8"
@@ -535,7 +535,7 @@ module O3D =
                 |> WithSourceName "semantic"
                 "width" =? T<int>
             ]
-        |> Constants "Semantic" Bitmap_Semantic [
+        |> Constants "o3d.Semantic" Bitmap_Semantic [
             "FACE_POSITIVE_X"
             "FACE_NEGATIVE_X"
             "FACE_POSITIVE_Y"
@@ -602,7 +602,7 @@ module O3D =
                 "setRect" => TextureCUBE_CubeFace?face * T<int>?level * T<int>?dstx * T<int>?dsty * T<int>?srcwidth * Type.ArrayOf T<float> ^-> T<unit>
                 "edgeLength" =? T<int>
             ]
-        |> Constants "CubeFace" TextureCUBE_CubeFace [
+        |> Constants "o3d.CubeFace" TextureCUBE_CubeFace [
             "FACE_POSITIVE_X"
             "FACE_NEGATIVE_X"
             "FACE_POSITIVE_Y"
@@ -632,7 +632,7 @@ module O3D =
             ]
 
     let UByteNFieldClass =
-        Class "UByteNField"
+        Class "o3d.UByteNField"
         |=> UByteNField
         |+> Protocol
             [
@@ -641,7 +641,7 @@ module O3D =
             ]
 
     let UInt32FieldClass =
-        Class "UInt32Field"
+        Class "o3d.UInt32Field"
         |=> UInt32Field
         |+> Protocol
             [
@@ -688,7 +688,7 @@ module O3D =
         Class "o3d.CanvasShader"
         |=> CanvasShader
         |=> Inherits ParamObject
-        |> Constants "TileMode" CanvasShader_TileMode [
+        |> Constants "o3d.TileMode" CanvasShader_TileMode [
             "CLAMP"
             "REPEAT"
             "MIRROR"
@@ -715,13 +715,13 @@ module O3D =
                 "textAlign" =% CanvasPaint_TextAlign
                 |> WithSourceName "textAlign"
             ]
-        |> Constants "Style" CanvasPaint_Style [
+        |> Constants "o3d.Style" CanvasPaint_Style [
             "NORMAL"
             "BOLD"
             "ITALIC"
             "BOLD_ITALIC"
         ]
-        |> Constants "TextAlign" CanvasPaint_TextAlign [
+        |> Constants "o3d.TextAlign" CanvasPaint_TextAlign [
             "LEFT"
             "CENTER"
             "RIGHT"
@@ -1186,14 +1186,14 @@ module O3D =
     let EventClass =
         Class "o3d.Event"
         |=> Event
-        |> Constants "Button" Event_Button [
+        |> Constants "o3d.Button" Event_Button [
             "BUTTON_LEFT"
             "BUTTON_RIGHT"
             "BUTTON_MIDDLE"
             "BUTTON_4"
             "BUTTON_5"
         ]
-        |> Constants "Type" Event_Type [
+        |> Constants "o3d.Type" Event_Type [
             "invalid"
             "click"
             "dblclick"
@@ -1268,7 +1268,7 @@ module O3D =
     let CursorClass =
         Class "o3d.Cursor"
         |=> Cursor
-        |> Constants "Type" Cursor_CursorType [
+        |> Constants "o3d.Type" Cursor_CursorType [
             "DEFAULT"
             "NONE"
             "CROSSHAIR"
@@ -1291,14 +1291,14 @@ module O3D =
     let RendererClass =
         Class "o3d.Renderer"
         |=> Renderer
-        |> Constants "InitStatus" Renderer_InitStatus [
+        |> Constants "o3d.InitStatus" Renderer_InitStatus [
             "UNINITIALIZED"
             "SUCCESS"
             "GPU_NOT_UP_TO_SPEC"
             "OUT_OF_RESOURCES"
             "INITIALIZATION_ERROR"
         ]
-        |> Constants "DisplayModes" Renderer_DisplayModes [
+        |> Constants "o3d.DisplayModes" Renderer_DisplayModes [
             "DISPLAY_MODE_DEFAULT"
         ]
 
@@ -1306,7 +1306,7 @@ module O3D =
         Class "o3d.DrawList"
         |=> DrawList
         |=> Inherits NamedObject
-        |> Constants "SortMethod" DrawList_SortMethod [
+        |> Constants "o3d.SortMethod" DrawList_SortMethod [
             "BY_PERFORMANCE"
             "BY_Z_ORDER"
             "BY_PRIORITY"
@@ -1315,7 +1315,7 @@ module O3D =
     let StreamClass =
         Class "o3d.Stream"
         |=> Stream
-        |> Constants "Semantic" Stream_Semantic [
+        |> Constants "o3d.Semantic" Stream_Semantic [
             "UNKNOWN_SEMANTIC"
             "POSITION"
             "NORMAL"
@@ -1337,7 +1337,7 @@ module O3D =
         let semantic = Type.New()
         Class "o3d.EffectParameterInfo"
         |=> EffectParameterInfo
-        |> Constants "Semantic" semantic [
+        |> Constants "o3d.Semantic" semantic [
             "UPPERCASE"
         ]
         |+> Protocol
@@ -1363,7 +1363,7 @@ module O3D =
         Class "o3d.Effect"
         |=> Effect
         |=> Inherits ParamObject
-        |> Constants "MatrixLoadOrder" Effect_MatrixLoadOrder [
+        |> Constants "o3d.MatrixLoadOrder" Effect_MatrixLoadOrder [
             "ROW_MAJOR"
             "COLUMN_MAJOR"
         ]
@@ -1383,14 +1383,14 @@ module O3D =
     let StateClass =
         Class "o3d.State"
         |=> State
-        |> Constants "BlendingEquation" State_BlendingEquation [
+        |> Constants "o3d.BlendingEquation" State_BlendingEquation [
             "BLEND_ADD"
             "BLEND_SUBSTRACT"
             "BLEND_REVERSE_SUBSTRACT"
             "BLEND_MIN"
             "BLEND_MAX"
         ]
-        |> Constants "BlendingFunction" State_BlendingFunction [
+        |> Constants "o3d.BlendingFunction" State_BlendingFunction [
             "BLENDFUNC_ZERO"
             "BLENDFUNC_ONE"
             "BLENDFUNC_SOURCE_COLOR"
@@ -1403,7 +1403,7 @@ module O3D =
             "BLENDFUNC_INVERSE_DESTINATION_COLOR"
             "BLENDFUNC_SOURCE_ALPHA_SATURATE"
         ]
-        |> Constants "Comparison" State_Comparison [
+        |> Constants "o3d.Comparison" State_Comparison [
             "CMP_NEVER"
             "CMP_LESS"
             "CMP_EQUAL"
@@ -1413,17 +1413,17 @@ module O3D =
             "CMP_GEQUAL"
             "CMP_ALWAYS"
         ]
-        |> Constants "Cull" State_Cull [
+        |> Constants "o3d.Cull" State_Cull [
             "CULL_NONE"
             "CULL_CW"
             "CULL_CCW"
         ]
-        |> Constants "Fill" State_Fill [
+        |> Constants "o3d.Fill" State_Fill [
             "POINT"
             "WIREFRAME"
             "SOLID"
         ]
-        |> Constants "StencilOperation" State_StencilOperation [
+        |> Constants "o3d.StencilOperation" State_StencilOperation [
             "STENCIL_KEEP"
             "STENCIL_ZERO"
             "STENCIL_REPLACE"
@@ -1608,7 +1608,7 @@ module O3D =
     let ClientClass =
         Class "o3d.Client"
         |=> Client
-        |> Constants "RenderMode" Client_RenderMode [
+        |> Constants "o3d.RenderMode" Client_RenderMode [
             "RENDERMODE_CONTINUOUS"
             "RENDERMODE_ON_DEMAND"
         ]
@@ -1670,7 +1670,7 @@ module O3D =
             ]
         |=> Counter
         |=> Inherits ParamObject
-        |> Constants "CountMode" Counter_CountMode [
+        |> Constants "o3d.CountMode" Counter_CountMode [
             "CONTINUOUS"
             "ONCE"
             "CYCLE"
@@ -1709,7 +1709,7 @@ module O3D =
             ]
         |=> Curve
         |=> Inherits Function
-        |> Constants "Infinity" Curve_Infinity [
+        |> Constants "o3d.Infinity" Curve_Infinity [
             "CONSTANT"
             "LINEAR"
             "CYCLE"
@@ -1851,7 +1851,7 @@ module O3D =
             ]
 
     let ParamOp16FloatsToMatrix4Class =
-        ClassWithInitArgs "ParamOp16FloatsToMatrix4"
+        ClassWithInitArgs "o3d.ParamOp16FloatsToMatrix4"
             [
                 "input0", T<float>
                 "input1", T<float>
@@ -1878,7 +1878,7 @@ module O3D =
             ]
 
     let ParamOp2FloatsToFloat2Class =
-        ClassWithInitArgs "ParamOp2FloatsToFloat2"
+        ClassWithInitArgs "o3d.ParamOp2FloatsToFloat2"
             [
                 "input0", T<float>
                 "input1", T<float>
@@ -1891,7 +1891,7 @@ module O3D =
             ]
 
     let ParamOp3FloatsToFloat3Class =
-        ClassWithInitArgs "ParamOp3FloatsToFloat3"
+        ClassWithInitArgs "o3d.ParamOp3FloatsToFloat3"
             [
                 "input0", T<float>
                 "input1", T<float>
@@ -1905,7 +1905,7 @@ module O3D =
             ]
 
     let ParamOp4FloatsToFloat4Class =
-        ClassWithInitArgs "ParamOp4FloatsToFloat4"
+        ClassWithInitArgs "o3d.ParamOp4FloatsToFloat4"
             [
                 "input0", T<float>
                 "input1", T<float>
@@ -1920,7 +1920,7 @@ module O3D =
             ]
 
     let StreamBankClass =
-        Class "StreamBank"
+        Class "o3d.StreamBank"
         |=> StreamBank
         |+> Protocol
             [
@@ -1931,7 +1931,7 @@ module O3D =
             ]
 
     let PrimitiveClass =
-        ClassWithInitArgs "Primitive"
+        ClassWithInitArgs "o3d.Primitive"
             [
                 "indexBuffer", IndexBuffer
                 "numberPrimitives", T<int>
@@ -1941,7 +1941,7 @@ module O3D =
             ]
         |=> Primitive
         |=> Inherits Element
-        |> Constants "PrimitiveType" Primitive_PrimitiveType
+        |> Constants "o3d.PrimitiveType" Primitive_PrimitiveType
              [
                 "POINTLIST"
                 "LINELIST"
@@ -1957,32 +1957,32 @@ module O3D =
             ]
 
     let ProjectionParamMatrix4Class =
-        Class "ProjectionParamMatrix4"
+        Class "o3d.ProjectionParamMatrix4"
         |=> ProjectionParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let ProjectionInverseParamMatrix4Class =
-        Class "ProjectionInverseParamMatrix4"
+        Class "o3d.ProjectionInverseParamMatrix4"
         |=> ProjectionInverseParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let ProjectionTransposeParamMatrix4Class =
-        Class "ProjectionTransposeParamMatrix4"
+        Class "o3d.ProjectionTransposeParamMatrix4"
         |=> ProjectionTransposeParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let ProjectionInverseTransposeParamMatrix4Class =
-        Class "ProjectionInverseTransposeParamMatrix4"
+        Class "o3d.ProjectionInverseTransposeParamMatrix4"
         |=> ProjectionInverseTransposeParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let RenderFrameCounterClass =
-        Class "RenderFrameCounter"
+        Class "o3d.RenderFrameCounter"
         |=> RenderFrameCounter
         |=> Inherits Counter
 
     let RenderSurfaceSetClass =
-        ClassWithInitArgs "RenderSurfaceSet"
+        ClassWithInitArgs "o3d.RenderSurfaceSet"
             [
                 "renderDepthStencilSurface", RenderDepthStencilSurface
                 "renderSurface", RenderSurface
@@ -1991,7 +1991,7 @@ module O3D =
         |=> Inherits RenderNode
 
     let SamplerClass =
-        ClassWithInitArgs "Sampler"
+        ClassWithInitArgs "o3d.Sampler"
             [
                 "addressModeU", Sampler_AddressMode
                 "addressModeV", Sampler_AddressMode
@@ -2005,13 +2005,13 @@ module O3D =
             ]
         |=> Sampler
         |=> Inherits ParamObject
-        |> Constants "AddressMode" Sampler_AddressMode [
+        |> Constants "o3d.AddressMode" Sampler_AddressMode [
             "WRAP"
             "MIRROR"
             "CLAMP"
             "BORDER"
         ]
-        |> Constants "FilterType" Sampler_FilterType [
+        |> Constants "o3d.FilterType" Sampler_FilterType [
             "NONE"
             "POINT"
             "LINEAR"
@@ -2019,12 +2019,12 @@ module O3D =
         ]
 
     let SecondCounterClass =
-        Class "SecondCounter"
+        Class "o3d.SecondCounter"
         |=> SecondCounter
         |=> Inherits Counter
 
     let SkinClass =
-        ClassWithInitArgs "Skin"
+        ClassWithInitArgs "o3d.Skin"
             [
                 "influences", Type.ArrayOf (Type.ArrayOf T<int>)
                 "inverseBindPoseMatrices", Type.ArrayOf Matrix4
@@ -2042,7 +2042,7 @@ module O3D =
             ]
 
     let VertexSourceClass =
-        Class "VertexSource"
+        Class "o3d.VertexSource"
         |=> VertexSource
         |=> Inherits ParamObject
         |+> Protocol
@@ -2052,7 +2052,7 @@ module O3D =
             ]
 
     let SkinEvalClass =
-        ClassWithInitArgs "SkinEval"
+        ClassWithInitArgs "o3d.SkinEval"
             [
                 "base", Matrix4
                 "matrices", ParamArray
@@ -2069,7 +2069,7 @@ module O3D =
             ]
 
     let VertexBufferBaseClass =
-        Class "VertexBufferBase"
+        Class "o3d.VertexBufferBase"
         |=> VertexBufferBase
         |=> Inherits Buffer
         |+> Protocol
@@ -2081,12 +2081,12 @@ module O3D =
             ]
 
     let SourceBufferClass =
-        Class "SourceBuffer"
+        Class "o3d.SourceBuffer"
         |=> SourceBuffer
         |=> Inherits VertexBufferBase
 
     let StateSetClass =
-        ClassWithInitArgs "StateSet"
+        ClassWithInitArgs "o3d.StateSet"
             [
                 "state", State
             ]
@@ -2094,12 +2094,12 @@ module O3D =
         |=> Inherits RenderNode
 
     let TickCounterClass =
-        Class "TickCounter"
+        Class "o3d.TickCounter"
         |=> TickCounter
         |=> Inherits Counter
 
     let TreeTraversalClass =
-        ClassWithInitArgs "TreeTraversal"
+        ClassWithInitArgs "o3d.TreeTraversal"
             [
                 "transform", Transform
             ]
@@ -2112,7 +2112,7 @@ module O3D =
             ]
 
     let TRSToMatrix4Class =
-        ClassWithInitArgs "TRSToMatrix4"
+        ClassWithInitArgs "o3d.TRSToMatrix4"
             [
                 "rotateX", T<float>
                 "rotateY", T<float>
@@ -2132,52 +2132,52 @@ module O3D =
             ]
 
     let VertexBufferClass =
-        Class "VertexBuffer"
+        Class "o3d.VertexBuffer"
         |=> VertexBuffer
         |=> Inherits VertexBufferBase
 
     let ViewParamMatrix4Class =
-        Class "ViewParamMatrix4"
+        Class "o3d.ViewParamMatrix4"
         |=> ViewParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let ViewInverseParamMatrix4Class =
-        Class "ViewInverseParamMatrix4"
+        Class "o3d.ViewInverseParamMatrix4"
         |=> ViewInverseParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let ViewTransposeParamMatrix4Class =
-        Class "ViewTransposeParamMatrix4"
+        Class "o3d.ViewTransposeParamMatrix4"
         |=> ViewTransposeParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let ViewInverseTransposeParamMatrix4Class =
-        Class "ViewInverseTransposeParamMatrix4"
+        Class "o3d.ViewInverseTransposeParamMatrix4"
         |=> ViewInverseTransposeParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let ViewProjectionParamMatrix4Class =
-        Class "ViewProjectionParamMatrix4"
+        Class "o3d.ViewProjectionParamMatrix4"
         |=> ViewProjectionParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let ViewProjectionInverseParamMatrix4Class =
-        Class "ViewProjectionInverseParamMatrix4"
+        Class "o3d.ViewProjectionInverseParamMatrix4"
         |=> ViewProjectionInverseParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let ViewProjectionTransposeParamMatrix4Class =
-        Class "ViewProjectionTransposeParamMatrix4"
+        Class "o3d.ViewProjectionTransposeParamMatrix4"
         |=> ViewProjectionTransposeParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let ViewProjectionInverseTransposeParamMatrix4Class =
-        Class "ViewProjectionInverseTransposeParamMatrix4"
+        Class "o3d.ViewProjectionInverseTransposeParamMatrix4"
         |=> ViewProjectionInverseTransposeParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let ViewportClass =
-        ClassWithInitArgs "Viewport"
+        ClassWithInitArgs "o3d.Viewport"
             [
                 "depthRange", Float2
             ]
@@ -2190,62 +2190,62 @@ module O3D =
             ]
 
     let WorldViewParamMatrix4Class =
-        Class "WorldViewParamMatrix4"
+        Class "o3d.WorldViewParamMatrix4"
         |=> WorldViewParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let WorldViewInverseParamMatrix4Class =
-        Class "WorldViewInverseParamMatrix4"
+        Class "o3d.WorldViewInverseParamMatrix4"
         |=> WorldViewInverseParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let WorldViewTransposeParamMatrix4Class =
-        Class "WorldViewTransposeParamMatrix4"
+        Class "o3d.WorldViewTransposeParamMatrix4"
         |=> WorldViewTransposeParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let WorldViewInverseTransposeParamMatrix4Class =
-        Class "WorldViewInverseTransposeParamMatrix4"
+        Class "o3d.WorldViewInverseTransposeParamMatrix4"
         |=> WorldViewInverseTransposeParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let WorldViewProjectionParamMatrix4Class =
-        Class "WorldViewProjectionParamMatrix4"
+        Class "o3d.WorldViewProjectionParamMatrix4"
         |=> WorldViewProjectionParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let WorldViewProjectionInverseParamMatrix4Class =
-        Class "WorldViewProjectionInverseParamMatrix4"
+        Class "o3d.WorldViewProjectionInverseParamMatrix4"
         |=> WorldViewProjectionInverseParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let WorldViewProjectionTransposeParamMatrix4Class =
-        Class "WorldViewProjectionTransposeParamMatrix4"
+        Class "o3d.WorldViewProjectionTransposeParamMatrix4"
         |=> WorldViewProjectionTransposeParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let WorldViewProjectionInverseTransposeParamMatrix4Class =
-        Class "WorldViewProjectionInverseTransposeParamMatrix4"
+        Class "o3d.WorldViewProjectionInverseTransposeParamMatrix4"
         |=> WorldViewProjectionInverseTransposeParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let WorldParamMatrix4Class =
-        Class "WorldParamMatrix4"
+        Class "o3d.WorldParamMatrix4"
         |=> WorldParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let WorldInverseParamMatrix4Class =
-        Class "WorldInverseParamMatrix4"
+        Class "o3d.WorldInverseParamMatrix4"
         |=> WorldInverseParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let WorldTransposeParamMatrix4Class =
-        Class "WorldTransposeParamMatrix4"
+        Class "o3d.WorldTransposeParamMatrix4"
         |=> WorldTransposeParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
     let WorldInverseTransposeParamMatrix4Class =
-        Class "WorldInverseTransposeParamMatrix4"
+        Class "o3d.WorldInverseTransposeParamMatrix4"
         |=> WorldInverseTransposeParamMatrix4
         |=> Inherits (ParamOf Matrix4)
 
@@ -3257,11 +3257,13 @@ module O3D =
                 "addEventListener" => T<Dom.Element> * T<string> * (T<Dom.Event> ^-> T<unit>) ^-> T<unit>
                 "addEventListener" => T<Dom.Element> * T<string> * (T<Dom.MouseEvent> ^-> T<unit>) ^-> T<unit>
                 "addEventListener" => T<Dom.Element> * T<string> * (T<Dom.KeyboardEvent> ^-> T<unit>) ^-> T<unit>
+                "addEventListener" => T<Dom.Element> * T<string> * (Event ^-> T<unit>) ^-> T<unit>
                 "appendWithSpace" => T<string> * T<string> ^-> T<string>
                 "appendWithSpaceIf" => T<bool> * T<string> * T<string> ^-> T<string>
                 "cancel" => T<Dom.Event> ^-> T<unit>
                 "createKeyEvent" => T<string>?eventName * T<int>?charCode * T<int>?keyCode * T<bool>?control * T<bool>?alt * T<bool>?shift * T<bool>?meta ^-> T<obj>
                 "getEventKeyChar" => T<Dom.Event> ^-> T<int>
+                "getEventKeyChar" => Event ^-> T<int>
                 "getEventKeyIdentifier" => T<int>?charCode * T<int>?keyCode ^-> T<string>
                 "getModifierString" => T<bool>?control * T<bool>?alt * T<bool>?shift * T<bool>?meta ^-> T<string>
                 "keyIdentifierToChar" => T<string> ^-> T<int>
@@ -3269,6 +3271,9 @@ module O3D =
                 "padWithLeadingZeroes" => T<string> * T<int> ^-> T<string>
                 "removeEventListener" => T<Dom.Element> * T<string> * (T<unit> ^-> T<unit>) ^-> T<unit>
                 "removeEventListener" => T<Dom.Element> * T<string> * (T<Dom.Event> ^-> T<unit>) ^-> T<unit>
+                "removeEventListener" => T<Dom.Element> * T<string> * (T<Dom.MouseEvent> ^-> T<unit>) ^-> T<unit>
+                "removeEventListener" => T<Dom.Element> * T<string> * (T<Dom.KeyboardEvent> ^-> T<unit>) ^-> T<unit>
+                "removeEventListener" => T<Dom.Element> * T<string> * (Event ^-> T<unit>) ^-> T<unit>
                 "startKeyboardEventSynthesis" => T<Dom.Element> ^-> T<unit>
             ]
 
