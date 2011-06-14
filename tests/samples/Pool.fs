@@ -346,7 +346,9 @@ type Physics[<JavaScript>]() =
                 let vec = O3DJS.Math.Mul(timeStep, ball.AngularVelocity)
                 ball.Orientation <- O3DJS.Quaternions.Mul(vectorToQuaternion(vec,()), ball.Orientation)
                                     |> O3DJS.Quaternions.Normalize
-                ball.Center <- (cx, cy, cz + ball.VerticalAcceleration))
+                ball.Center <- (cx, cy, cz)
+                let vx, vy, vz = ball.Velocity
+                ball.Velocity <- (vx, vy, vz + ball.VerticalAcceleration))
 
     [<JavaScript>]
     member this.ImpartSpeed(i, (dx, dy)) =
@@ -374,7 +376,7 @@ type Physics[<JavaScript>]() =
     [<JavaScript>]
     member this.SomeBallsMoving() =
         balls |> Array.exists (fun ball ->
-            not ball.Active ||
+            ball.Active &&
             (let (v0, v1, v2) = ball.Velocity
              let (w0, w1, w2) = ball.AngularVelocity
              v0 <> 0. || v1 <> 0. || v2 <> 0. ||
@@ -396,13 +398,21 @@ type Physics[<JavaScript>]() =
             if ball.Active then
                 let (px, py, pz) = ball.Center
                 if ball.SunkInPocket >= 0 then
-                    let pocketCenter = pocketCenters.[ball.SunkInPocket]
+                    let pcx, pcy as pocketCenter = pocketCenters.[ball.SunkInPocket]
+                    // let dx = px - pcx
+                    // let dy = py - pcy
+                    // let norm = Math.Sqrt(dx*dx + dy*dy)
+                    // let maxNorm = g_pocketRadius - Math.Sqrt(Math.Max(0., (1. - (pz + 1.) * (pz + 1.))))
+                    // if norm > maxNorm then
+                    //     ball.Center <- (pcx + dx * maxNorm / norm,
+                    //                     pcy + dy * maxNorm / norm,
+                    //                     pz)
                     let (dx, dy) as d = O3DJS.Math.Sub((px, py), pocketCenter)
                     let norm = O3DJS.Math.Length d
                     let maxNorm = g_pocketRadius - Math.Sqrt (max 0. (1. - (pz + 1.) * (pz + 1.)))
                     if norm > maxNorm then
                         let ratio = maxNorm / norm
-                        ball.Center <- (px + dx*ratio, py + dy*ratio, pz)
+                        ball.Center <- (pcx + dx*ratio, pcy + dy*ratio, pz)
                 if pz < -3. then
                     ball.Velocity <- (0., 0., 0.)
                     ball.AngularVelocity <- (0., 0., 0.)
@@ -629,7 +639,7 @@ type Physics[<JavaScript>]() =
          ((-a * c) / I, (-b * c) / I, 1. / m + (a * a + b * b) / I))
 
     [<JavaScript>]
-    member this.ApplyImpulse(i, impulse : float * float * float, r) =
+    member this.ApplyImpulse(i, (ix, iy, _ as impulse) : float * float * float, r) =
         let ball = balls.[i]
         let (rx, ry, rz) = r
         ball.Velocity <- O3DJS.Math.Add(ball.Velocity, O3DJS.Math.Div(impulse, ball.Mass))
