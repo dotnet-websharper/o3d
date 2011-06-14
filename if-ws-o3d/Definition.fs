@@ -3851,21 +3851,21 @@ module O3D =
         |+> [
                 "add" => T<float> * T<float> ^-> T<float>
                 "addQuaternionQuaternion" => Quat * Quat ^-> Quat
-                |> WithSourceName "add"
+                |> WithSourceName "Add"
                 "addQuaternionScalar" => Quat * T<float> ^-> Quat
-                |> WithSourceName "add"
+                |> WithSourceName "Add"
                 "addScalarQuaternion" => T<float> * Quat ^-> Quat
-                |> WithSourceName "add"
+                |> WithSourceName "Add"
                 "axisRotation" => Float3?axis * T<float>?angle ^-> Quat
                 "conjugate" => Quat ^-> Quat
                 "copy" => Quat ^-> Quat
                 "div" => T<float> * T<float> ^-> T<float>
                 "divQuaternionQuaternion" => Quat * Quat ^-> Quat
-                |> WithSourceName "div"
+                |> WithSourceName "Div"
                 "divQuaternionScalar" => Quat * T<float> ^-> Quat
-                |> WithSourceName "div"
+                |> WithSourceName "Div"
                 "divScalarQuaternion" => T<float> * Quat ^-> Quat
-                |> WithSourceName "div"
+                |> WithSourceName "Div"
                 "inverse" => Quat ^-> Quat
                 "length" => Quat ^-> Quat
                 "lengthSquared" => Quat ^-> Quat
@@ -3874,11 +3874,11 @@ module O3D =
                 "mathType" => Type.ArrayOf T<float> ^-> T<string>
                 "mul" => T<float> * T<float> ^-> T<float>
                 "mulQuaternionQuaternion" => Quat * Quat ^-> Quat
-                |> WithSourceName "mul"
+                |> WithSourceName "Mul"
                 "mulQuaternionScalar" => Quat * T<float> ^-> Quat
-                |> WithSourceName "mul"
+                |> WithSourceName "Mul"
                 "mulScalarQuaternion" => T<float> * Quat ^-> Quat
-                |> WithSourceName "mul"
+                |> WithSourceName "Mul"
                 "negative" => Quat ^-> Quat
                 "normalize" => Quat ^-> Quat
                 "quaternionToRotation" => Quat ^-> Matrix4
@@ -3889,11 +3889,11 @@ module O3D =
                 "rotationZ" => T<float> ^-> Quat
                 "sub" => T<float> * T<float> ^-> T<float>
                 "subQuaternionQuaternion" => Quat * Quat ^-> Quat
-                |> WithSourceName "sub"
+                |> WithSourceName "Sub"
                 "subQuaternionScalar" => Quat * T<float> ^-> Quat
-                |> WithSourceName "sub"
+                |> WithSourceName "Sub"
                 "subScalarQuaternion" => T<float> * Quat ^-> Quat
-                |> WithSourceName "sub"
+                |> WithSourceName "Sub"
             ]
 
     let rendergraph =

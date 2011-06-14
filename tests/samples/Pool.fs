@@ -61,7 +61,7 @@ with
     static member ComputeNormals(arr) =
         arr |> Array.map (fun ((px, py as p) : Float2, (qx, qy as q) : Float2) ->
             let (tx, ty) = O3DJS.Math.Normalize(O3DJS.Math.Sub(q, p))
-            let nx = tx
+            let nx = ty
             let ny = -tx
             { p = p; q = q; nx = nx; ny = ny
               k = nx * px + ny * py
@@ -280,7 +280,7 @@ type Physics[<JavaScript>]() =
     [<JavaScript>]
     let vectorToQuaternion ((r0, r1, r2) as r, ()) =
         let theta = O3DJS.Math.Length r
-        let stot = if theta < 1.0e-6 then 1. else sin(theta/2.) / theta
+        let stot = if theta < 1.0e-6 then 1. else Math.Sin(theta/2.) / theta
         (stot * r0, stot * r1, stot * r2, Math.Cos(theta))
 
     [<JavaScript>]
@@ -344,7 +344,7 @@ type Physics[<JavaScript>]() =
             if ball.Active then
                 let (cx, cy, cz) = O3DJS.Math.Add(ball.Center, O3DJS.Math.Mul(timeStep, ball.Velocity))
                 let vec = O3DJS.Math.Mul(timeStep, ball.AngularVelocity)
-                ball.Orientation <- O3DJS.Math.Mul(vectorToQuaternion(vec,()), ball.Orientation)
+                ball.Orientation <- O3DJS.Quaternions.Mul(vectorToQuaternion(vec,()), ball.Orientation)
                                     |> O3DJS.Quaternions.Normalize
                 ball.Center <- (cx, cy, cz + ball.VerticalAcceleration))
 
@@ -387,7 +387,7 @@ type Physics[<JavaScript>]() =
                 let (px, py, _) = ball.Center
                 pocketCenters |> Array.iteri (fun j pocketCenter ->
                     if O3DJS.Math.DistanceSquared((px, py), pocketCenter) < g_pocketRadius*g_pocketRadius then
-                        ball.VerticalAcceleration <- ball.VerticalAcceleration - 0.005
+                        ball.VerticalAcceleration <- -0.005
                         ball.SunkInPocket <- j))
 
     [<JavaScript>]
@@ -428,7 +428,7 @@ type Physics[<JavaScript>]() =
     member this.Collide() =
         this.CollideBalls()
         this.CollideWithWalls()
-        not (List.isEmpty collisions && List.isEmpty wallCollisions)
+        not (List.isEmpty collisions) || not (List.isEmpty wallCollisions)
 
     [<JavaScript>]
     member this.PushOut() =
@@ -572,8 +572,8 @@ type Physics[<JavaScript>]() =
     // Ensure that z = 0. because unlike the original js,
     // we use the entire vector with eg. Math.Cross
     [<JavaScript>]
-    member this.Impulse args =
-        let (x, y, _) = this.Impulse' args
+    member this.Impulse(v1, w1, m1, I1, r1, v2, w2, m2, I2, r2, N, e, u_s, u_d) =
+        let (x, y, _) = this.Impulse'(v1, w1, m1, I1, r1, v2, w2, m2, I2, r2, N, e, u_s, u_d)
         (x, y, 0.)
 
     [<JavaScript>]
