@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -32,11 +32,7 @@
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\$(Name).XML</DocumentationFile>
   </PropertyGroup>
-  <Import Project="$(INTELLIFACTORY)/build/IntelliFactory.FSharp.targets" />
-  <PropertyGroup>
-    <WEBSHARPER_HOME>$(MSBuildProjectDirectory)/../.build/lib</WEBSHARPER_HOME>
-  </PropertyGroup>
-  <Import Project="$(WEBSHARPER_HOME)/IntelliFactory.WebSharper.targets" />
+  <Import Project="$(INTELLIFACTORY)/build/IntelliFactory.WebSharper-2.3.targets" />
   <ItemGroup>
     <Compile Include="Pool.fs" />
     <Compile Include="Samples.fs" />
@@ -44,9 +40,7 @@
   <ItemGroup>
     <Reference Include="FSharp.Core" />
     <Reference Include="FSharp.PowerPack" />
-    <Reference Include="IntelliFactory.WebSharper.Html5">
-      <HintPath>..\.build\lib\IntelliFactory.WebSharper.Html5.dll</HintPath>
-    </Reference>
+    <Reference Include="IntelliFactory.WebSharper.Html5" />
     <Reference Include="System" />
     <Reference Include="mscorlib" />
     <Reference Include="IntelliFactory.Json" />
