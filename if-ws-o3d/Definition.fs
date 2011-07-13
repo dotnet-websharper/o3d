@@ -1,8 +1,11 @@
 ﻿namespace IntelliFactory.WebSharper.O3DExtension
 
-open IntelliFactory.WebSharper
 open IntelliFactory.WebSharper.Dom
 open IntelliFactory.WebSharper.Html5
+type DomElement       = IntelliFactory.WebSharper.Dom.Element
+type DomEvent         = IntelliFactory.WebSharper.Dom.Event
+type DomMouseEvent    = IntelliFactory.WebSharper.Dom.MouseEvent
+type DomKeyboardEvent = IntelliFactory.WebSharper.Dom.KeyboardEvent
 
 module O3D =
     open IntelliFactory.WebSharper.InterfaceGenerator
@@ -3067,7 +3070,7 @@ module O3D =
         Class "SimpleInfo"
         |=> simple_SimpleInfo'
         |+> [
-                Constructor (T<Dom.Element>)
+                Constructor (T<DomElement>)
             ]
         |+> Protocol
             [
@@ -3090,7 +3093,7 @@ module O3D =
                 "unregisterObjectForUpdate" => simple_SimpleObject ^-> T<unit>
                 "viewAll" => T<unit> ^-> T<unit>
                 "client" =? Client
-                "clientObject" =? T<Dom.Element>
+                "clientObject" =? T<DomElement>
                 "o3d" =? o3d
                 "pack" =% Pack
                 "root" =% Transform
@@ -3253,28 +3256,28 @@ module O3D =
     let event =
         Class "o3djs.event"
         |+> [
-                "addEventListener" => T<Dom.Element> * T<string> * (T<unit> ^-> T<unit>) ^-> T<unit>
-                "addEventListener" => T<Dom.Element> * T<string> * (T<Dom.Event> ^-> T<unit>) ^-> T<unit>
-                "addEventListener" => T<Dom.Element> * T<string> * (T<Dom.MouseEvent> ^-> T<unit>) ^-> T<unit>
-                "addEventListener" => T<Dom.Element> * T<string> * (T<Dom.KeyboardEvent> ^-> T<unit>) ^-> T<unit>
-                "addEventListener" => T<Dom.Element> * T<string> * (Event ^-> T<unit>) ^-> T<unit>
+                "addEventListener" => T<DomElement> * T<string> * (T<unit> ^-> T<unit>) ^-> T<unit>
+                "addEventListener" => T<DomElement> * T<string> * (T<DomEvent> ^-> T<unit>) ^-> T<unit>
+                "addEventListener" => T<DomElement> * T<string> * (T<DomMouseEvent> ^-> T<unit>) ^-> T<unit>
+                "addEventListener" => T<DomElement> * T<string> * (T<DomKeyboardEvent> ^-> T<unit>) ^-> T<unit>
+                "addEventListener" => T<DomElement> * T<string> * (Event ^-> T<unit>) ^-> T<unit>
                 "appendWithSpace" => T<string> * T<string> ^-> T<string>
                 "appendWithSpaceIf" => T<bool> * T<string> * T<string> ^-> T<string>
-                "cancel" => T<Dom.Event> ^-> T<unit>
+                "cancel" => T<DomEvent> ^-> T<unit>
                 "createKeyEvent" => T<string>?eventName * T<int>?charCode * T<int>?keyCode * T<bool>?control * T<bool>?alt * T<bool>?shift * T<bool>?meta ^-> T<obj>
-                "getEventKeyChar" => T<Dom.Event> ^-> T<int>
+                "getEventKeyChar" => T<DomEvent> ^-> T<int>
                 "getEventKeyChar" => Event ^-> T<int>
                 "getEventKeyIdentifier" => T<int>?charCode * T<int>?keyCode ^-> T<string>
                 "getModifierString" => T<bool>?control * T<bool>?alt * T<bool>?shift * T<bool>?meta ^-> T<string>
                 "keyIdentifierToChar" => T<string> ^-> T<int>
-                "onKey" => T<Dom.Event> * T<Dom.Element> ^-> T<unit>
+                "onKey" => T<DomEvent> * T<DomElement> ^-> T<unit>
                 "padWithLeadingZeroes" => T<string> * T<int> ^-> T<string>
-                "removeEventListener" => T<Dom.Element> * T<string> * (T<unit> ^-> T<unit>) ^-> T<unit>
-                "removeEventListener" => T<Dom.Element> * T<string> * (T<Dom.Event> ^-> T<unit>) ^-> T<unit>
-                "removeEventListener" => T<Dom.Element> * T<string> * (T<Dom.MouseEvent> ^-> T<unit>) ^-> T<unit>
-                "removeEventListener" => T<Dom.Element> * T<string> * (T<Dom.KeyboardEvent> ^-> T<unit>) ^-> T<unit>
-                "removeEventListener" => T<Dom.Element> * T<string> * (Event ^-> T<unit>) ^-> T<unit>
-                "startKeyboardEventSynthesis" => T<Dom.Element> ^-> T<unit>
+                "removeEventListener" => T<DomElement> * T<string> * (T<unit> ^-> T<unit>) ^-> T<unit>
+                "removeEventListener" => T<DomElement> * T<string> * (T<DomEvent> ^-> T<unit>) ^-> T<unit>
+                "removeEventListener" => T<DomElement> * T<string> * (T<DomMouseEvent> ^-> T<unit>) ^-> T<unit>
+                "removeEventListener" => T<DomElement> * T<string> * (T<DomKeyboardEvent> ^-> T<unit>) ^-> T<unit>
+                "removeEventListener" => T<DomElement> * T<string> * (Event ^-> T<unit>) ^-> T<unit>
+                "startKeyboardEventSynthesis" => T<DomElement> ^-> T<unit>
             ]
 
     let fps =
@@ -3956,7 +3959,7 @@ module O3D =
                     simple_SimpleScene
                     simple_SimpleShape]
         |+> [
-                "create" => T<Dom.Element> ^-> simple_SimpleShape
+                "create" => T<DomElement> ^-> simple_SimpleShape
             ]
 
     let texture =
@@ -3980,16 +3983,16 @@ module O3D =
                 "addScriptUri" => T<string> ^-> T<unit>
                 "arrayContains" => Type.ArrayOf T<obj> * T<obj> ^-> T<bool>
                 "callV8" => T<obj> * (T<obj> ^-> T<obj>) * T<obj> * Type.ArrayOf T<obj> ^-> T<obj>
-                "createClient" => T<Dom.Element>?element * T<string>?features * T<string>?requestVersion ^-> T<Dom.Element>
-                "createClient" => T<Dom.Element>?element * T<string>?features ^-> T<Dom.Element>
-                "createClient" => T<Dom.Element> ^-> T<Dom.Element>
+                "createClient" => T<DomElement>?element * T<string>?features * T<string>?requestVersion ^-> T<DomElement>
+                "createClient" => T<DomElement>?element * T<string>?features ^-> T<DomElement>
+                "createClient" => T<DomElement> ^-> T<DomElement>
                 "curry" => (T<obj> ^-> T<obj>) * T<obj> ^-> (T<obj> ^-> T<obj>)
                 "getAbsoluteURI" => T<string> ^-> T<string>
                 "getBoundingBoxOfTree" => Transform ^-> BoundingBox
                 "getCurrentURI" => T<unit> ^-> T<string>
-                "getElementById" => T<string> ^-> T<Dom.Element>
+                "getElementById" => T<string> ^-> T<DomElement>
                 "getElementContentById" => T<string> ^-> T<string>
-                "getElementsByTagAndId" => T<string>?tag * T<string>?id ^-> Type.ArrayOf T<Dom.Element>
+                "getElementsByTagAndId" => T<string>?tag * T<string>?id ^-> Type.ArrayOf T<DomElement>
                 "getPluginVersion" => T<unit> ^-> T<string>
                 "getPowerOfTwoSize" => T<int> ^-> T<int>
                 "getTransformsInTreeByPrefix" => Transform * T<string> ^-> Type.ArrayOf Transform
@@ -4001,12 +4004,12 @@ module O3D =
                 "informPluginFailure" => Renderer_InitStatus?initStatus * T<string>?error * T<string>?id ^-> T<unit>
                 "informPluginFailure" => Renderer_InitStatus?initStatus * T<string>?error ^-> T<unit>
                 "isScriptUri" => T<string> ^-> T<bool>
-                "makeClients" => (Type.ArrayOf T<Dom.Element> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback * T<string>?id * T<string>?tag ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<Dom.Element> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback * T<string>?id ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<Dom.Element> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<Dom.Element> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion  ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<Dom.Element> ^-> T<unit>)?callback * T<string>?features  ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<Dom.Element> ^-> T<unit>)?callback  ^-> T<unit>
+                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback * T<string>?id * T<string>?tag ^-> T<unit>
+                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback * T<string>?id ^-> T<unit>
+                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback ^-> T<unit>
+                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion  ^-> T<unit>
+                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features  ^-> T<unit>
+                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback  ^-> T<unit>
                 "offerPlugin" => T<string>?id * T<string>?tag ^-> T<unit>
                 "offerPlugin" => T<string>?id ^-> T<unit>
                 "offerPlugin" => T<unit> ^-> T<unit>
@@ -4023,18 +4026,18 @@ module O3D =
     let webgl =
         Class "o3djs.webgl"
         |+> [
-                "makeClients" => (Type.ArrayOf T<Dom.Element> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback * T<string>?id * T<string>?tag ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<Dom.Element> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback * T<string>?id ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<Dom.Element> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<Dom.Element> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion  ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<Dom.Element> ^-> T<unit>)?callback * T<string>?features  ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<Dom.Element> ^-> T<unit>)?callback  ^-> T<unit>
+                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback * T<string>?id * T<string>?tag ^-> T<unit>
+                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback * T<string>?id ^-> T<unit>
+                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback ^-> T<unit>
+                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion  ^-> T<unit>
+                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features  ^-> T<unit>
+                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback  ^-> T<unit>
                 "createGLErrorWrapper" => T<obj>?context * T<string>?fname ^-> T<unit>
                 "addDebuggingWrapper" => T<obj>?context ^-> T<unit>
-                "webGlCanvasError" => T<Dom.Element> * T<Dom.Element> ^-> T<unit>
-                "createClient" => T<Dom.Element>?element * T<string>?features * T<bool>?debug ^-> T<Dom.Element>
-                "createClient" => T<Dom.Element>?element * T<string>?features ^-> T<Dom.Element>
-                "createClient" => T<Dom.Element>?element ^-> T<Dom.Element>
+                "webGlCanvasError" => T<DomElement> * T<DomElement> ^-> T<unit>
+                "createClient" => T<DomElement>?element * T<string>?features * T<bool>?debug ^-> T<DomElement>
+                "createClient" => T<DomElement>?element * T<string>?features ^-> T<DomElement>
+                "createClient" => T<DomElement>?element ^-> T<DomElement>
             ]
 
     let o3djs =
