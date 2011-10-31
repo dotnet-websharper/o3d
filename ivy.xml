@@ -1,23 +1,14 @@
-<ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:noNamespaceSchemaLocation="http://doiop.com/ivy-2.1.0.xsd">
-  <info organisation="IntelliFactory" module="if-ws-o3d" revision="2.3" />
-  <configurations>
-    <conf name="build" />
-    <conf name="default" />
-  </configurations>
+<ivy-module version="2.0">
+  <info organisation="IntelliFactory" module="if-ws-o3d" revision="2.4" />
   <publications>
-    <artifact name="IntelliFactory.WebSharper.O3D" ext="dll" type="bin" conf="default" />
-    <artifact name="IntelliFactory.WebSharper.O3D" ext="xml" type="doc" conf="default" />
-    <artifact name="IntelliFactory.WebSharper.O3D" ext="pdb" type="debug" conf="default" />
-    <artifact name="if-ws-o3d-docs" ext="zip" type="doc" conf="default" />
+    <artifact name="IntelliFactory.WebSharper.O3D" ext="dll" type="bin" />
+    <artifact name="IntelliFactory.WebSharper.O3D" ext="xml" type="doc" />
+    <artifact name="IntelliFactory.WebSharper.O3D" ext="pdb" type="debug" />
+    <artifact name="if-ws-o3d-docs" ext="zip" type="doc" />
   </publications>
   <dependencies>
-    <dependency name="if-ws" rev="latest.integration" conf="build->compiler" />
-    <dependency name="if-ws" rev="latest.integration" conf="default->default" />
-    <dependency name="if-ws-dom" rev="latest.integration" conf="default->default" />
-    <dependency name="if-ws-ig" rev="latest.integration" conf="build->default" />
-    <dependency name="if-ws-html" rev="latest.integration" />
+    <dependency name="if-ws" rev="latest.integration" />
     <dependency name="if-ws-html5" rev="latest.integration" />
-    <dependency name="if-ws-json" rev="latest.integration" />
+    <dependency name="if-ws-ecma" rev="latest.integration" />
   </dependencies>
 </ivy-module>

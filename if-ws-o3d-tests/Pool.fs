@@ -1,4 +1,4 @@
-﻿module IntelliFactory.WebSharper.O3D.Samples.Pool
+﻿module IntelliFactory.WebSharper.O3D.Tests.Pool
 
 open IntelliFactory.WebSharper.O3D
 open IntelliFactory.WebSharper
@@ -231,7 +231,6 @@ let g_ballTransforms = Array.init 16 (fun i -> null : O3D.Transform)
 [<JavaScript>]
 let mutable g_centers = [||] : O3D.Param<Float2>[]
 
-[<JavaScriptType>]
 type Physics[<JavaScript>]() =
 
     [<JavaScript>]
@@ -675,7 +674,6 @@ type Physics[<JavaScript>]() =
             let t = epsilon / vLength
             O3DJS.Math.Mul(v, 1. - t)
 
-[<JavaScriptType>]
 type Pool [<JavaScript>]() =
 
     let SHADOWPOV = false
@@ -718,7 +716,7 @@ type Pool [<JavaScript>]() =
     let UpdateMaterials() =
         JavaScript.ForEach g_materials (fun name ->
             let eye, _ = g_cameraInfo.GetEyeAndTarget()
-            SetOptionalParam(JavaScript.Get name g_materials, "eyeWorldPosition", eye)
+            SetOptionalParam((?) g_materials name, "eyeWorldPosition", eye)
             false)
 
     [<JavaScript>]
@@ -759,7 +757,7 @@ type Pool [<JavaScript>]() =
     [<JavaScript>]
     let InitGlobals(clientElements : Dom.Element[]) =
         g_o3dElement <- clientElements.[0]
-        g_client <- JavaScript.Get "client" g_o3dElement
+        g_client <- g_o3dElement?client
         g_pack <- g_client.CreatePack()
 
     [<JavaScript>]
@@ -985,17 +983,17 @@ type Pool [<JavaScript>]() =
             ignore <| effect.LoadPixelShaderFromString (PixelShaderString + mainString)
             let material = g_pack.CreateMaterial(Effect = effect,
                                                  DrawList = g_viewInfo.PerformanceDrawList)
-            JavaScript.Set g_materials name material
+            (?<-) g_materials name material
             effect.CreateUniformParameters material
             let eye, target = g_cameraInfo.GetEyeAndTarget()
             SetOptionalParam(material, "factor", 2. / g_tableWidth)
             SetOptionalParam(material, "lightWorldPosition", g_light)
             SetOptionalParam(material, "eyeWorldPosition", eye))
-        g_solidMaterial <- JavaScript.Get "solid" g_materials
+        g_solidMaterial <- g_materials?solid
         g_solidMaterial.DrawList <- g_hudViewInfo.ZOrderedDrawList
-        (As<O3D.Material> <| JavaScript.Get "shadowPlane" g_materials).DrawList <- g_shadowPassViewInfo.ZOrderedDrawList
+        (As<O3D.Material> g_materials?shadowPlane).DrawList <- g_shadowPassViewInfo.ZOrderedDrawList
         g_shadowSampler <- g_pack.CreateSampler(Texture = g_shadowTexture)
-        ((As<O3D.Material> <| JavaScript.Get "felt" g_materials).GetParam "textureSampler").Value <- g_shadowSampler
+        ((As<O3D.Material> g_materials?felt).GetParam "textureSampler").Value <- g_shadowSampler
         O3DJS.Io.LoadBitmaps(g_pack,
                              O3DJS.Util.GetAbsoluteURI("../assets/poolballs.png"),
                              FinishLoadingBitmaps) |> ignore
@@ -1044,7 +1042,7 @@ type Pool [<JavaScript>]() =
     let InitShadowPlane() =
         let root = g_pack.CreateTransform(Parent = g_shadowRoot)
         let plane = O3DJS.Primitives.CreatePlane(g_pack,
-                                                 As<O3D.Material> (JavaScript.Get "shadowPlane" g_materials),
+                                                 As<O3D.Material> g_materials?shadowPlane,
                                                  g_tableWidth,
                                                  g_tableWidth * 2., 1, 1)
         root.Translate((0., 0., -1.))
@@ -1095,10 +1093,10 @@ type Pool [<JavaScript>]() =
 
     [<JavaScript>]
     let InitTable() =
-        let feltMaterial = JavaScript.Get "felt" g_materials
-        let woodMaterial = JavaScript.Get "wood" g_materials
-        let cushionMaterial = JavaScript.Get "cushion" g_materials
-        let billiardMaterial = JavaScript.Get "billiard" g_materials
+        let feltMaterial = g_materials?felt
+        let woodMaterial = g_materials?wood
+        let cushionMaterial = g_materials?cushion
+        let billiardMaterial = g_materials?billiard
         let mutable shapes = [||]
         let root = g_pack.CreateTransform(Parent = g_tableRoot)
         let tableRoot = g_pack.CreateTransform(Parent = root)
@@ -1216,7 +1214,7 @@ type Pool [<JavaScript>]() =
             t.AddShape cushion
             billiards |> Array.iter t.AddShape
         shapes <- Array.append shapes billiards
-        let ball = O3DJS.Primitives.CreateSphere(g_pack, JavaScript.Get "ball" g_materials, 1., 50, 70)
+        let ball = O3DJS.Primitives.CreateSphere(g_pack, g_materials?ball, 1., 50, 70)
         shapes <- Array.append shapes [|ball|]
         for i = 0 to 15 do
             let transform = g_pack.CreateTransform(Parent = ballRoot)
@@ -1361,6 +1359,8 @@ type Pool [<JavaScript>]() =
             g_physics.BallOn 1
             g_physics.BallOn 2
             g_physics.BallOn 3
+        | _ ->
+            failwith "MatchFailure"
         g_physics.RandomOrientations()
         g_physics.PlaceBalls()
         g_cameraInfo.GoTo(Some (0., 0., 0.), Some (-System.Math.PI/2.), Some (System.Math.PI/6.), Some 140.)
@@ -1438,6 +1438,8 @@ type Pool [<JavaScript>]() =
                     if not (g_rolling || g_shooting) then
                         StartShooting()
                 g_seriousness <- g_seriousness + 1
+        | _ ->
+            failwith "MatchFailure"
         UpdateContext()
 
     [<JavaScript>]

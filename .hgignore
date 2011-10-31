@@ -1,6 +1,6 @@
+\.build
+\.suo$
+\.user$
+^web/Scripts
 bin
-tests/Scripts
 obj
-.build
-.*\.suo
-.*\.user

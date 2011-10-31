@@ -1,10 +1,10 @@
-﻿namespace IntelliFactory.WebSharper.O3D.Samples
+﻿namespace IntelliFactory.WebSharper.O3D.Tests
 
 open IntelliFactory.WebSharper
 open IntelliFactory.WebSharper.Html
 open IntelliFactory.WebSharper.O3D
 open IntelliFactory.WebSharper.Html5
-open IntelliFactory.WebSharper.O3D.Samples.Pool
+open IntelliFactory.WebSharper.O3D.Tests.Pool
 
 module Main =
 
@@ -17,8 +17,6 @@ module Main =
             pool.InitClient()
         )
 
-
-[<JavaScriptType>]
 type Samples() =
     inherit Web.Control()
 

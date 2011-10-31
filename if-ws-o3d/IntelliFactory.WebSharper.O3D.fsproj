@@ -9,8 +9,8 @@
     <OutputType>Library</OutputType>
     <Name>IntelliFactory.WebSharper.O3D</Name>
     <RootNamespace>$(Name)</RootNamespace>
-    <AssemblyName>IntelliFactory.WebSharper.O3D</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <AssemblyName>$(Name)</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -32,7 +32,7 @@
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\$(Name).XML</DocumentationFile>
   </PropertyGroup>
-  <Import Project="$(INTELLIFACTORY)/build/IntelliFactory.WebSharper.InterfaceGenerator-2.3.targets" />
+  <Import Project="..\.build\lib\IntelliFactory.WebSharper.InterfaceGenerator.targets" />
   <ItemGroup>
     <Compile Include="Definition.fs" />
     <Compile Include="Main.fs" />
@@ -42,14 +42,11 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core" />
-    <Reference Include="FSharp.PowerPack" />
-    <Reference Include="IntelliFactory.WebSharper.Html5">
-      <HintPath>..\.build\lib\IntelliFactory.WebSharper.Html5.dll</HintPath>
-    </Reference>
+    <Reference Include="IntelliFactory.WebSharper.Html5" />
     <Reference Include="System" />
     <Reference Include="mscorlib" />
-    <Reference Include="IntelliFactory.Json" />
     <Reference Include="IntelliFactory.WebSharper" />
+    <Reference Include="IntelliFactory.WebSharper.Core" />
     <Reference Include="IntelliFactory.WebSharper.InterfaceGenerator" />
     <Reference Include="IntelliFactory.WebSharper.Dom" />
     <Reference Include="System.Web" />
