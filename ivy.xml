@@ -7,8 +7,6 @@
     <artifact name="if-ws-o3d-docs" ext="zip" type="doc" />
   </publications>
   <dependencies>
-    <dependency name="if-ws" rev="latest.integration" />
-    <dependency name="if-ws-html5" rev="latest.integration" />
-    <dependency name="if-ws-ecma" rev="latest.integration" />
+    <dependency name="WebSharper" rev="latest.integration" />
   </dependencies>
 </ivy-module>
