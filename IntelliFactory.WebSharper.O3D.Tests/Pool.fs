@@ -755,9 +755,9 @@ type Pool [<JavaScript>]() =
         g_physics.InitWalls()
 
     [<JavaScript>]
-    let InitGlobals(clientElements : Dom.Element[]) =
+    let InitGlobals(clientElements : O3DJS.ClientElement[]) =
         g_o3dElement <- clientElements.[0]
-        g_client <- g_o3dElement?client
+        g_client <- clientElements.[0].Client
         g_pack <- g_client.CreatePack()
 
     [<JavaScript>]

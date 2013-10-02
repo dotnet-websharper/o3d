@@ -3978,6 +3978,13 @@ module O3D =
                 "MAX_TEXTURE_DIMENSION" =? T<int>
             ]
 
+    let ClientElement =
+        Class "o3djs.ClientElement"
+        |=> Inherits T<DomElement>
+        |+> Protocol [
+                "client" =? Client
+            ]
+
     let util =
         Class "o3djs.util"
         |+> [
@@ -4005,12 +4012,12 @@ module O3D =
                 "informPluginFailure" => Renderer_InitStatus?initStatus * T<string>?error * T<string>?id ^-> T<unit>
                 "informPluginFailure" => Renderer_InitStatus?initStatus * T<string>?error ^-> T<unit>
                 "isScriptUri" => T<string> ^-> T<bool>
-                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback * T<string>?id * T<string>?tag ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback * T<string>?id ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion  ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features  ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback  ^-> T<unit>
+                "makeClients" => (Type.ArrayOf ClientElement ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback * T<string>?id * T<string>?tag ^-> T<unit>
+                "makeClients" => (Type.ArrayOf ClientElement ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback * T<string>?id ^-> T<unit>
+                "makeClients" => (Type.ArrayOf ClientElement ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback ^-> T<unit>
+                "makeClients" => (Type.ArrayOf ClientElement ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion  ^-> T<unit>
+                "makeClients" => (Type.ArrayOf ClientElement ^-> T<unit>)?callback * T<string>?features  ^-> T<unit>
+                "makeClients" => (Type.ArrayOf ClientElement ^-> T<unit>)?callback  ^-> T<unit>
                 "offerPlugin" => T<string>?id * T<string>?tag ^-> T<unit>
                 "offerPlugin" => T<string>?id ^-> T<unit>
                 "offerPlugin" => T<unit> ^-> T<unit>
@@ -4027,18 +4034,18 @@ module O3D =
     let webgl =
         Class "o3djs.webgl"
         |+> [
-                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback * T<string>?id * T<string>?tag ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback * T<string>?id ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion  ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback * T<string>?features  ^-> T<unit>
-                "makeClients" => (Type.ArrayOf T<DomElement> ^-> T<unit>)?callback  ^-> T<unit>
+                "makeClients" => (Type.ArrayOf ClientElement ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback * T<string>?id * T<string>?tag ^-> T<unit>
+                "makeClients" => (Type.ArrayOf ClientElement ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback * T<string>?id ^-> T<unit>
+                "makeClients" => (Type.ArrayOf ClientElement ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback ^-> T<unit>
+                "makeClients" => (Type.ArrayOf ClientElement ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion  ^-> T<unit>
+                "makeClients" => (Type.ArrayOf ClientElement ^-> T<unit>)?callback * T<string>?features  ^-> T<unit>
+                "makeClients" => (Type.ArrayOf ClientElement ^-> T<unit>)?callback  ^-> T<unit>
                 "createGLErrorWrapper" => T<obj>?context * T<string>?fname ^-> T<unit>
                 "addDebuggingWrapper" => T<obj>?context ^-> T<unit>
                 "webGlCanvasError" => T<DomElement> * T<DomElement> ^-> T<unit>
-                "createClient" => T<DomElement>?element * T<string>?features * T<bool>?debug ^-> T<DomElement>
-                "createClient" => T<DomElement>?element * T<string>?features ^-> T<DomElement>
-                "createClient" => T<DomElement>?element ^-> T<DomElement>
+                "createClient" => ClientElement?element * T<string>?features * T<bool>?debug ^-> T<DomElement>
+                "createClient" => ClientElement?element * T<string>?features ^-> T<DomElement>
+                "createClient" => ClientElement?element ^-> T<DomElement>
             ]
 
     let o3djs =
@@ -4188,6 +4195,7 @@ module O3D =
                 base'
                 camera
                 canvas
+                ClientElement
                 debug
                 dump
                 effect
