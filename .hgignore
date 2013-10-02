@@ -4,3 +4,6 @@
 ^web/Scripts
 bin
 obj
+^build/
+^packages/
+^tools/packages/
