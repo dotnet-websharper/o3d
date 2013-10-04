@@ -20,8 +20,13 @@ bt.Solution [
     test
 
     bt.NuGet.CreatePackage()
-        .Description("WebSharper Extensions for O3D 20100829")
-        .ProjectUrl("https://github.com/intellifactory/websharper.glmatrix")
+        .Configure(fun c ->
+            { c with
+                Title = Some "WebSharper.O3D-20100829"
+                LicenseUrl = Some "http://websharper.com/licensing"
+                ProjectUrl = Some "https://github.com/intellifactory/websharper.o3d"
+                Description = "WebSharper Extensions for O3D 20100829"
+                RequiresLicenseAcceptance = true })
         .Add(main)
 ]
 |> bt.Dispatch

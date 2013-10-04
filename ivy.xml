@@ -1,11 +1,5 @@
 <ivy-module version="2.0">
-  <info organisation="IntelliFactory" module="if-ws-o3d" revision="2.4" />
-  <publications>
-    <artifact name="IntelliFactory.WebSharper.O3D" ext="dll" type="bin" />
-    <artifact name="IntelliFactory.WebSharper.O3D" ext="xml" type="doc" />
-    <artifact name="IntelliFactory.WebSharper.O3D" ext="pdb" type="debug" />
-    <artifact name="if-ws-o3d-docs" ext="zip" type="doc" />
-  </publications>
+  <info organisation="IntelliFactory" module="websharper.o3d" revision="2.5" />
   <dependencies>
     <dependency name="WebSharper" rev="latest.integration" />
   </dependencies>
