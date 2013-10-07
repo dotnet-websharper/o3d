@@ -1,9 +1,10 @@
 # Overview
 
-This WebSharper™ Extension provides a set of classes and functions almost
-identical to the ones documented in the [O3D API][o3d-api]. When used
-in WebSharper™ projects, these stub classes delegate the work to the
-actual classes implemented by the browser.
+This WebSharper™ Extension provides a set of classes and functions
+almost identical to the ones documented in the [O3D API][o3d-api],
+version 20100829. When used in WebSharper™ projects, these stub
+classes delegate the work to the actual classes implemented by the
+browser.
 
 After adding the reference to the project all the classes can be found
 under the `IntelliFactory.WebSharper.O3D` module.
