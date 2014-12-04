@@ -23,6 +23,5 @@ bt.Solution [
         .Description("WebSharper Extensions for O3D 20100829")
         .ProjectUrl("https://github.com/intellifactory/websharper.glmatrix")
         .Add(main)
-
 ]
 |> bt.Dispatch
