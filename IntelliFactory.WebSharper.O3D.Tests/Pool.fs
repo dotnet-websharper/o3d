@@ -2,7 +2,7 @@
 
 open IntelliFactory.WebSharper.O3D
 open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.EcmaScript
+open IntelliFactory.WebSharper.JavaScript
 
 type Float2 = float * float
 type Float3 = float * float * float
@@ -714,7 +714,7 @@ type Pool [<JavaScript>]() =
 
     [<JavaScript>]
     let UpdateMaterials() =
-        JavaScript.ForEach g_materials (fun name ->
+        JS.ForEach g_materials (fun name ->
             let eye, _ = g_cameraInfo.GetEyeAndTarget()
             SetOptionalParam((?) g_materials name, "eyeWorldPosition", eye)
             false)
@@ -1283,11 +1283,11 @@ type Pool [<JavaScript>]() =
     [<JavaScript>]
     let StartShooting() =
         g_shooting <- true
-        g_shooting_timers <- JavaScript.SetInterval IncreaseFactor (1000/60) :: g_shooting_timers
+        g_shooting_timers <- JS.SetInterval IncreaseFactor (1000/60) :: g_shooting_timers
 
     [<JavaScript>]
     let FinishShooting() =
-        g_shooting_timers |> List.iter JavaScript.ClearTimeout
+        g_shooting_timers |> List.iter JS.ClearTimeout
         g_shooting_timers <- []
         if g_physics.SpeedFactor > 0. then
             let (ex, ey, _), (tx, ty, _) = g_cameraInfo.GetEyeAndTarget()

@@ -1,12 +1,12 @@
 ﻿namespace IntelliFactory.WebSharper.O3DExtension
 
-open IntelliFactory.WebSharper.Dom
-open IntelliFactory.WebSharper.Html5
+open IntelliFactory.WebSharper
+open IntelliFactory.WebSharper.JavaScript.Dom
 open IntelliFactory.WebSharper.InterfaceGenerator
-type DomElement       = IntelliFactory.WebSharper.Dom.Element
-type DomEvent         = IntelliFactory.WebSharper.Dom.Event
-type DomMouseEvent    = IntelliFactory.WebSharper.Dom.MouseEvent
-type DomKeyboardEvent = IntelliFactory.WebSharper.Dom.KeyboardEvent
+type DomElement       = IntelliFactory.WebSharper.JavaScript.Dom.Element
+type DomEvent         = IntelliFactory.WebSharper.JavaScript.Dom.Event
+type DomMouseEvent    = IntelliFactory.WebSharper.JavaScript.Dom.MouseEvent
+type DomKeyboardEvent = IntelliFactory.WebSharper.JavaScript.Dom.KeyboardEvent
 
 module O3D =
 
