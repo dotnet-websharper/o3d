@@ -23,7 +23,7 @@ module O3D =
             let t = Type.New()
             Class name
             |=> t
-            |+> (strings
+            |+> Static (strings
                  |> List.map (fun s ->
                     s =? t
                     |> WithGetterInline ("\"" + s + "\"")
@@ -34,7 +34,7 @@ module O3D =
 //            |=> t
 //            |+> (strings
 //                 |> List.map (fun s ->
-//                    s =% t
+//                    s =@ t
 //                    // |> WithGetterInline (name + "." + s)
 //                    :> CodeModel.IClassMember))
 
@@ -48,7 +48,7 @@ module O3D =
                     :> CodeModel.IClassMember)
             t
             |=> Nested [c]
-            |+> fields
+            |+> Static fields
 
         let ClassWithInitArgs name args =
             Pattern.Config name {Optional=args; Required=[]}
@@ -226,7 +226,7 @@ module O3D =
     let ObjectBaseClass =
         Class "o3d.ObjectBase"
         |=> ObjectBase
-        |+> Protocol
+        |+> Instance
             [
                 "isAClassName" => T<string> ^-> T<bool>
                 "className" =? T<string>
@@ -250,7 +250,7 @@ module O3D =
         Class "o3d.Param"
         |=> Inherits NamedObjectBase
         |=> Param
-        |+> Protocol
+        |+> Instance
             [
                 "bind" => Param ^-> T<bool>
                 "unbindInput" => T<unit> ^-> T<unit>
@@ -260,7 +260,7 @@ module O3D =
                 "outputConnections" =? Type.ArrayOf Param
                 "readOnly" => T<bool>
                 "updateInput" => T<bool>
-                "value" =% T<obj>
+                "value" =@ T<obj>
             ]
         |> WithSourceName "GenParam"
 
@@ -316,116 +316,116 @@ module O3D =
             ]
         |=> ParamType
 
-    let ParamOf = Generic / fun t ->
+    let ParamOf = Generic - fun t ->
         Class "Param"
         |=> Inherits Param
-        |+> Protocol
+        |+> Instance
             [
-                "value" =% t
+                "value" =@ t
             ]
 
     let ParamObjectClass =
         Class "o3d.ParamObject"
         |=> ParamObject
         |=> Inherits NamedObject
-        |+> Protocol
+        |+> Instance
             [
                 "copyParams" => ParamObject ^-> T<unit>
                 "createParam" => T<string> * ParamType ^-> Param
-                "createParamBoolean" => T<string> ^-> ParamOf T<bool>
+                "createParamBoolean" => T<string> ^-> ParamOf.[T<bool>]
                 |> WithInline "$this.createParam($1, 'o3d.ParamBoolean')"
-                "createParamBoundingBox" => T<string> ^-> ParamOf BoundingBox
+                "createParamBoundingBox" => T<string> ^-> ParamOf.[BoundingBox]
                 |> WithInline "$this.createParam($1, 'o3d.ParamBoundingBox')"
-                "createParamDrawContext" => T<string> ^-> ParamOf DrawContext
+                "createParamDrawContext" => T<string> ^-> ParamOf.[DrawContext]
                 |> WithInline "$this.createParam($1, 'o3d.ParamDrawContext')"
-                "createParamDrawList" => T<string> ^-> ParamOf DrawList
+                "createParamDrawList" => T<string> ^-> ParamOf.[DrawList]
                 |> WithInline "$this.createParam($1, 'o3d.ParamDrawList')"
-                "createParamEffect" => T<string> ^-> ParamOf Effect
+                "createParamEffect" => T<string> ^-> ParamOf.[Effect]
                 |> WithInline "$this.createParam($1, 'o3d.ParamEffect')"
-                "createParamFloat" => T<string> ^-> ParamOf T<float>
+                "createParamFloat" => T<string> ^-> ParamOf.[T<float>]
                 |> WithInline "$this.createParam($1, 'o3d.ParamFloat')"
-                "createParamFloat2" => T<string> ^-> ParamOf Float2
+                "createParamFloat2" => T<string> ^-> ParamOf.[Float2]
                 |> WithInline "$this.createParam($1, 'o3d.ParamFloat2')"
-                "createParamFloat3" => T<string> ^-> ParamOf Float3
+                "createParamFloat3" => T<string> ^-> ParamOf.[Float3]
                 |> WithInline "$this.createParam($1, 'o3d.ParamFloat3')"
-                "createParamFloat4" => T<string> ^-> ParamOf Float4
+                "createParamFloat4" => T<string> ^-> ParamOf.[Float4]
                 |> WithInline "$this.createParam($1, 'o3d.ParamFloat4')"
-                "createParamFunction" => T<string> ^-> ParamOf Function
+                "createParamFunction" => T<string> ^-> ParamOf.[Function]
                 |> WithInline "$this.createParam($1, 'o3d.ParamFunction')"
-                "createParamInteger" => T<string> ^-> ParamOf T<int>
+                "createParamInteger" => T<string> ^-> ParamOf.[T<int>]
                 |> WithInline "$this.createParam($1, 'o3d.ParamInteger')"
-                "createParamMaterial" => T<string> ^-> ParamOf Material
+                "createParamMaterial" => T<string> ^-> ParamOf.[Material]
                 |> WithInline "$this.createParam($1, 'o3d.ParamMaterial')"
-                "createParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.ParamMatrix4')"
-                "createParamParamArray" => T<string> ^-> ParamOf ParamArray
+                "createParamParamArray" => T<string> ^-> ParamOf.[ParamArray]
                 |> WithInline "$this.createParam($1, 'o3d.ParamParamArray')"
-                "createParamRenderSurface" => T<string> ^-> ParamOf RenderSurface
+                "createParamRenderSurface" => T<string> ^-> ParamOf.[RenderSurface]
                 |> WithInline "$this.createParam($1, 'o3d.ParamRenderSurface')"
-                "createParamRenderDepthStencilSurface" => T<string> ^-> ParamOf RenderDepthStencilSurface
+                "createParamRenderDepthStencilSurface" => T<string> ^-> ParamOf.[RenderDepthStencilSurface]
                 |> WithInline "$this.createParam($1, 'o3d.ParamRenderDepthStencilSurface')"
-                "createParamSampler" => T<string> ^-> ParamOf Sampler
+                "createParamSampler" => T<string> ^-> ParamOf.[Sampler]
                 |> WithInline "$this.createParam($1, 'o3d.ParamSampler')"
-                "createParamSkin" => T<string> ^-> ParamOf Skin
+                "createParamSkin" => T<string> ^-> ParamOf.[Skin]
                 |> WithInline "$this.createParam($1, 'o3d.ParamSkin')"
-                "createParamStreamBank" => T<string> ^-> ParamOf StreamBank
+                "createParamStreamBank" => T<string> ^-> ParamOf.[StreamBank]
                 |> WithInline "$this.createParam($1, 'o3d.ParamStreamBank')"
-                "createParamState" => T<string> ^-> ParamOf State
+                "createParamState" => T<string> ^-> ParamOf.[State]
                 |> WithInline "$this.createParam($1, 'o3d.ParamState')"
-                "createParamString" => T<string> ^-> ParamOf T<string>
+                "createParamString" => T<string> ^-> ParamOf.[T<string>]
                 |> WithInline "$this.createParam($1, 'o3d.ParamString')"
-                "createParamTexture" => T<string> ^-> ParamOf Texture
+                "createParamTexture" => T<string> ^-> ParamOf.[Texture]
                 |> WithInline "$this.createParam($1, 'o3d.ParamTexture')"
-                "createParamTransform" => T<string> ^-> ParamOf Transform
+                "createParamTransform" => T<string> ^-> ParamOf.[Transform]
                 |> WithInline "$this.createParam($1, 'o3d.ParamTransform')"
 
-                "createProjectionParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createProjectionParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.ProjectionParamMatrix4')"
-                "createProjectionInverseParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createProjectionInverseParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.ProjectionInverseParamMatrix4')"
-                "createProjectionTransposeParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createProjectionTransposeParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.ProjectionTransposeParamMatrix4')"
-                "createProjectionInverseTransposeParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createProjectionInverseTransposeParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.ProjectionInverseTransposeParamMatrix4')"
-                "createViewParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createViewParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.ViewParamMatrix4')"
-                "createViewInverseParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createViewInverseParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.ViewInverseParamMatrix4')"
-                "createViewTransposeParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createViewTransposeParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.ViewTransposeParamMatrix4')"
-                "createViewInverseTransposeParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createViewInverseTransposeParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.ViewInverseTransposeParamMatrix4')"
-                "createViewProjectionParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createViewProjectionParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.ViewProjectionParamMatrix4')"
-                "createViewProjectionInverseParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createViewProjectionInverseParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.ViewProjectionInverseParamMatrix4')"
-                "createViewProjectionTransposeParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createViewProjectionTransposeParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.ViewProjectionTransposeParamMatrix4')"
-                "createViewProjectionInverseTransposeParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createViewProjectionInverseTransposeParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.ViewProjectionInverseTransposeParamMatrix4')"
-                "createWorldParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createWorldParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.WorldParamMatrix4')"
-                "createWorldInverseParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createWorldInverseParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.WorldInverseParamMatrix4')"
-                "createWorldTransposeParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createWorldTransposeParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.WorldTransposeParamMatrix4')"
-                "createWorldInverseTransposeParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createWorldInverseTransposeParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.WorldInverseTransposeParamMatrix4')"
-                "createWorldViewParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createWorldViewParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.WorldViewParamMatrix4')"
-                "createWorldViewInverseParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createWorldViewInverseParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.WorldViewInverseParamMatrix4')"
-                "createWorldViewTransposeParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createWorldViewTransposeParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.WorldViewTransposeParamMatrix4')"
-                "createWorldViewInverseTransposeParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createWorldViewInverseTransposeParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.WorldViewInverseTransposeParamMatrix4')"
-                "createWorldViewProjectionParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createWorldViewProjectionParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.WorldViewProjectionParamMatrix4')"
-                "createWorldViewProjectionInverseParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createWorldViewProjectionInverseParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.WorldViewProjectionInverseParamMatrix4')"
-                "createWorldViewProjectionTransposeParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createWorldViewProjectionTransposeParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.WorldViewProjectionTransposeParamMatrix4')"
-                "createWorldViewProjectionInverseTransposeParamMatrix4" => T<string> ^-> ParamOf Matrix4
+                "createWorldViewProjectionInverseTransposeParamMatrix4" => T<string> ^-> ParamOf.[Matrix4]
                 |> WithInline "$this.createParam($1, 'o3d.WorldViewProjectionInverseTransposeParamMatrix4')"
 
 
@@ -438,7 +438,7 @@ module O3D =
         Class "o3d.RawData"
         |=> RawData
         |=> Inherits ParamObject
-        |+> Protocol
+        |+> Instance
             [
                 "discard" => T<unit> ^-> T<unit>
                 "flush" => T<unit> ^-> T<unit>
@@ -451,7 +451,7 @@ module O3D =
         Class "o3d.ArchiveRequest"
         |=> ArchiveRequest
         |=> Inherits ObjectBase
-        |+> Protocol
+        |+> Instance
             [
                 "open" => T<string>?method_ * T<string>?uri ^-> T<unit>
                 "send" => T<unit> ^-> T<unit>
@@ -475,7 +475,7 @@ module O3D =
             ]
         |=> CurveKey
         |=> Inherits ObjectBase
-        |+> Protocol
+        |+> Instance
             [
                 "destroy" => T<unit> ^-> T<unit>
             ]
@@ -503,7 +503,7 @@ module O3D =
         Class "o3d.Texture"
         |=> Texture
         |=> Inherits ParamObject
-        |+> Protocol
+        |+> Instance
             [
                 "generateMips" => T<int> * T<int> ^-> T<unit>
                 "alphaIsOne" =? T<bool>
@@ -528,7 +528,7 @@ module O3D =
         Class "o3d.Bitmap"
         |=> Bitmap
         |=> Inherits ParamObject
-        |+> Protocol
+        |+> Instance
             [
                 "flipVertically" => T<unit> ^-> T<unit>
                 "generateMips" => T<int>?srclevel * T<int>?numlevels ^-> T<unit>
@@ -554,7 +554,7 @@ module O3D =
         Class "o3d.RenderSurfaceBase"
         |=> RenderSurfaceBase
         |=> Inherits ParamObject
-        |+> Protocol
+        |+> Instance
             [
                 "height" =? T<int>
                 "width" =? T<int>
@@ -564,7 +564,7 @@ module O3D =
         Class "o3d.RenderSurface"
         |=> RenderSurface
         |=> Inherits RenderSurfaceBase
-        |+> Protocol
+        |+> Instance
             [
                 "texture" =? Texture
             ]
@@ -574,7 +574,7 @@ module O3D =
         Class "o3d.Texture2D"
         |=> Texture2D
         |=> Inherits Texture
-        |+> Protocol
+        |+> Instance
             [
                 "drawImage" => Bitmap?bitmap * T<int>?srclevel * T<int>?srcx * T<int>?srcy * T<int>?srcwidth * T<int>?srcheight * T<int>?dstlevel * T<int>?dstx * T<int>?dsty * T<int>?dstwidth * T<int>?dstheight ^-> T<unit>
                 "drawImage" => Bitmap?bitmap * T<int>?srclevel * T<int>?srcx * T<int>?srcy * T<int>?srcwidth * T<int>?srcheight * T<int>?dstlevel * T<int>?dstx * T<int>?dsty * T<int>?dstwidth^-> T<unit>
@@ -593,7 +593,7 @@ module O3D =
         Class "o3d.TextureCUBE"
         |=> TextureCUBE
         |=> Inherits Texture
-        |+> Protocol
+        |+> Instance
             [
                 "drawImage" => Bitmap?bitmap * T<int>?srclevel * T<int>?srcx * T<int>?srcy * T<int>?srcwidth * T<int>?srcheight * T<int>?face * T<int>?dstlevel * T<int>?dstx * T<int>?dsty * T<int>?dstwidth * T<int>?dstheight ^-> T<unit>
                 "drawImage" => Bitmap?bitmap * T<int>?srclevel * T<int>?srcx * T<int>?srcy * T<int>?srcwidth * T<int>?srcheight * T<int>?face * T<int>?dstlevel * T<int>?dstx * T<int>?dsty * T<int>?dstwidth^-> T<unit>
@@ -629,7 +629,7 @@ module O3D =
         Class "o3d.FloatField"
         |=> FloatField
         |=> Inherits Field
-        |+> Protocol
+        |+> Instance
             [
                 "getAt" => T<int>?startIndex * T<int>?numElements ^-> Type.ArrayOf T<float>
                 "setAt" => T<int>?startIndex * (Type.ArrayOf T<float>)?data ^-> T<unit>
@@ -638,7 +638,7 @@ module O3D =
     let UByteNFieldClass =
         Class "o3d.UByteNField"
         |=> UByteNField
-        |+> Protocol
+        |+> Instance
             [
                 "getAt" => T<int>?start * T<int>?count ^-> Type.ArrayOf T<int>
                 "setAt" => T<int>?start * (Type.ArrayOf T<int>)?data ^-> T<unit>
@@ -647,7 +647,7 @@ module O3D =
     let UInt32FieldClass =
         Class "o3d.UInt32Field"
         |=> UInt32Field
-        |+> Protocol
+        |+> Instance
             [
                 "getAt" => T<int>?start * T<int>?count ^-> Type.ArrayOf T<int>
                 "setAt" => T<int>?start * (Type.ArrayOf T<int>)?data ^-> T<unit>
@@ -657,7 +657,7 @@ module O3D =
         Class "o3d.Buffer"
         |=> Buffer
         |=> Inherits NamedObject
-        |+> Protocol
+        |+> Instance
             [
                 "allocateElements" => T<int> ^-> T<bool>
                 "createField" => FieldType * T<int> ^-> Field
@@ -679,7 +679,7 @@ module O3D =
     let CanvasFontMetricsClass =
         Class "o3d.CanvasFontMetrics"
         |=> CanvasFontMetrics
-        |+> Protocol
+        |+> Instance
             [
                 "ascent" =? T<float>
                 "bottom" =? T<float>
@@ -710,13 +710,13 @@ module O3D =
             ]
         |=> CanvasPaint
         |=> Inherits ParamObject
-        |+> Protocol
+        |+> Instance
             [
                 "getFontMetrics" => T<unit> ^-> CanvasFontMetrics
                 "measureText" => T<string> ^-> Float4
                 "setOutline" => T<float>?radius * Float4?color ^-> T<unit>
                 "setShadow" => T<float>?radius * T<float>?offsetx * T<float>?offsety * Float4?color ^-> T<unit>
-                "textAlign" =% CanvasPaint_TextAlign
+                "textAlign" =@ CanvasPaint_TextAlign
                 |> WithSourceName "textAlign"
             ]
         |> Constants "o3d.Style" CanvasPaint_Style [
@@ -737,7 +737,7 @@ module O3D =
         Class "o3d.Canvas"
         |=> Inherits ParamObject
         |=> Canvas
-        |+> Protocol
+        |+> Instance
             [
                 "clear" => Float4 ^-> T<unit>
                 "copyToTexture" => Texture2D ^-> T<unit>
@@ -776,7 +776,7 @@ module O3D =
             ]
         |=> RenderNode
         |=> Inherits ParamObject
-        |+> Protocol
+        |+> Instance
             [
                 "getRenderNodesByClassNameInTree" => T<string> ^-> Type.ArrayOf RenderNode
                 "getRenderNodesByNameInTree" => T<string> ^-> Type.ArrayOf RenderNode
@@ -812,7 +812,7 @@ module O3D =
         Class "o3d.FileRequest"
         |=> FileRequest
         |=> Inherits ObjectBase
-        |+> Protocol
+        |+> Instance
             [
                 "open" => T<string>?method_ * T<string>?uri * T<bool>?async ^-> T<unit>
                 "send" => T<unit> ^-> T<unit>
@@ -882,7 +882,7 @@ module O3D =
         Class "o3d.Pack"
         |=> Pack
         |=> Inherits NamedObject
-        |+> Protocol
+        |+> Instance
             [
                 "createArchiveRequest" => T<unit> ^-> ArchiveRequest
                 "createBitmapsFromRawData" => RawData ^-> Bitmap
@@ -1179,7 +1179,7 @@ module O3D =
     let DisplayModeClass =
         Class "o3d.DisplayMode"
         |=> DisplayMode
-        |+> Protocol
+        |+> Instance
             [
                 "height" =? T<int>
                 "id" =? T<int>
@@ -1210,7 +1210,7 @@ module O3D =
             "keyup"
             "resize"
         ]
-        |+> Protocol
+        |+> Instance
             [
                 "altKey" =? T<bool>
                 "button" =? Event_Button
@@ -1236,7 +1236,7 @@ module O3D =
     let RenderEventClass =
         Class "o3d.RenderEvent"
         |=> RenderEvent
-        |+> Protocol
+        |+> Instance
             [
                 "activeTime" =? T<float>
                 "drawElementsCulled" =? T<int>
@@ -1252,7 +1252,7 @@ module O3D =
     let TickEventClass =
         Class "o3d.TickEvent"
         |=> TickEvent
-        |+> Protocol
+        |+> Instance
             [
                 "elapsedTime" =? T<float>
             ]
@@ -1260,7 +1260,7 @@ module O3D =
     let ClientInfoClass =
         Class "o3d.ClientInfo"
         |=> ClientInfo
-        |+> Protocol
+        |+> Instance
             [
                 "bufferMemoryUsed" =? T<int>
                 "nonPowerOfTwoTextures" =? T<bool>
@@ -1328,7 +1328,7 @@ module O3D =
             "COLOR"
             "TEXCOORD"
         ]
-        |+> Protocol
+        |+> Instance
             [
                 "field" =? Field
                 "semantic" =? Stream_Semantic
@@ -1344,7 +1344,7 @@ module O3D =
         |> Constants "o3d.Semantic" semantic [
             "UPPERCASE"
         ]
-        |+> Protocol
+        |+> Instance
             [
                 "className" =? T<string>
                 "name" =? T<string>
@@ -1357,7 +1357,7 @@ module O3D =
     let EffectStreamInfoClass =
         Class "o3d.EffectStreamInfo"
         |=> EffectStreamInfo
-        |+> Protocol
+        |+> Instance
             [
                 "semantic" =? Stream_Semantic
                 "semanticIndex" =? T<int>
@@ -1371,7 +1371,7 @@ module O3D =
             "ROW_MAJOR"
             "COLUMN_MAJOR"
         ]
-        |+> Protocol
+        |+> Instance
             [
                 "createSASParameters" => ParamObject ^-> T<unit>
                 "createUniformParameters" => ParamObject ^-> T<unit>
@@ -1437,80 +1437,80 @@ module O3D =
             "STENCIL_INCREMENT"
             "STENCIL_DECREMENT"
         ]
-        |+> Protocol
+        |+> Instance
             [
                 "getStateParam" => T<string> ^-> Param
-                "GetStateParamAlphaTestEnable" =? ParamOf T<bool>
+                "GetStateParamAlphaTestEnable" =? ParamOf.[T<bool>]
                 |> WithGetterInline "$this.getStateParam(\"AlphaTestEnable\")"
-                "GetStateParamAlphaReference" =? ParamOf T<float>
+                "GetStateParamAlphaReference" =? ParamOf.[T<float>]
                 |> WithGetterInline "$this.getStateParam(\"AlphaReference\")"
-                "GetStateParamAlphaComparisonFunction" =? ParamOf State_Comparison
+                "GetStateParamAlphaComparisonFunction" =? ParamOf.[State_Comparison]
                 |> WithGetterInline "$this.getStateParam(\"AlphaComparisonFunction\")"
-                "GetStateParamCullMode" =? ParamOf State_Cull
+                "GetStateParamCullMode" =? ParamOf.[State_Cull]
                 |> WithGetterInline "$this.getStateParam(\"CullMode\")"
-                "GetStateParamDitherEnable" =? ParamOf T<bool>
+                "GetStateParamDitherEnable" =? ParamOf.[T<bool>]
                 |> WithGetterInline "$this.getStateParam(\"DitherEnable\")"
-                "GetStateParamLineSmoothEnable" =? ParamOf T<bool>
+                "GetStateParamLineSmoothEnable" =? ParamOf.[T<bool>]
                 |> WithGetterInline "$this.getStateParam(\"LineSmoothEnable\")"
-                "GetStateParamPointSpriteEnable" =? ParamOf T<bool>
+                "GetStateParamPointSpriteEnable" =? ParamOf.[T<bool>]
                 |> WithGetterInline "$this.getStateParam(\"PointSpriteEnable\")"
-                "GetStateParamPointSize" =? ParamOf T<float>
+                "GetStateParamPointSize" =? ParamOf.[T<float>]
                 |> WithGetterInline "$this.getStateParam(\"PointSize\")"
-                "GetStateParamPolygonOffset1" =? ParamOf T<float>
+                "GetStateParamPolygonOffset1" =? ParamOf.[T<float>]
                 |> WithGetterInline "$this.getStateParam(\"PolygonOffset1\")"
-                "GetStateParamPolygonOffset2" =? ParamOf T<float>
+                "GetStateParamPolygonOffset2" =? ParamOf.[T<float>]
                 |> WithGetterInline "$this.getStateParam(\"PolygonOffset2\")"
-                "GetStateParamFillMode" =? ParamOf State_Fill
+                "GetStateParamFillMode" =? ParamOf.[State_Fill]
                 |> WithGetterInline "$this.getStateParam(\"FillMode\")"
-                "GetStateParamZEnable" =? ParamOf T<bool>
+                "GetStateParamZEnable" =? ParamOf.[T<bool>]
                 |> WithGetterInline "$this.getStateParam(\"ZEnable\")"
-                "GetStateParamZWriteEnable" =? ParamOf T<bool>
+                "GetStateParamZWriteEnable" =? ParamOf.[T<bool>]
                 |> WithGetterInline "$this.getStateParam(\"ZWriteEnable\")"
-                "GetStateParamZComparisonFunction" =? ParamOf State_Comparison
+                "GetStateParamZComparisonFunction" =? ParamOf.[State_Comparison]
                 |> WithGetterInline "$this.getStateParam(\"ZComparisonFunction\")"
-                "GetStateParamAlphaBlendEnable" =? ParamOf T<bool>
+                "GetStateParamAlphaBlendEnable" =? ParamOf.[T<bool>]
                 |> WithGetterInline "$this.getStateParam(\"AlphaBlendEnable\")"
-                "GetStateParamSourceBlendFunction" =? ParamOf State_BlendingFunction
+                "GetStateParamSourceBlendFunction" =? ParamOf.[State_BlendingFunction]
                 |> WithGetterInline "$this.getStateParam(\"SourceBlendFunction\")"
-                "GetStateParamDestinationBlendFunction" =? ParamOf State_BlendingFunction
+                "GetStateParamDestinationBlendFunction" =? ParamOf.[State_BlendingFunction]
                 |> WithGetterInline "$this.getStateParam(\"DestinationBlendFunction\")"
-                "GetStateParamStencilEnable" =? ParamOf T<bool>
+                "GetStateParamStencilEnable" =? ParamOf.[T<bool>]
                 |> WithGetterInline "$this.getStateParam(\"StencilEnable\")"
-                "GetStateParamStencilFailOperation" =? ParamOf State_StencilOperation
+                "GetStateParamStencilFailOperation" =? ParamOf.[State_StencilOperation]
                 |> WithGetterInline "$this.getStateParam(\"StencilFailOperation\")"
-                "GetStateParamStencilZFailOperation" =? ParamOf State_StencilOperation
+                "GetStateParamStencilZFailOperation" =? ParamOf.[State_StencilOperation]
                 |> WithGetterInline "$this.getStateParam(\"StencilZFailOperation\")"
-                "GetStateParamStencilPassOperation" =? ParamOf State_StencilOperation
+                "GetStateParamStencilPassOperation" =? ParamOf.[State_StencilOperation]
                 |> WithGetterInline "$this.getStateParam(\"StencilPassOperation\")"
-                "GetStateParamStencilComparisonFunction" =? ParamOf State_Comparison
+                "GetStateParamStencilComparisonFunction" =? ParamOf.[State_Comparison]
                 |> WithGetterInline "$this.getStateParam(\"StencilComparisonFunction\")"
-                "GetStateParamStencilReference" =? ParamOf T<int>
+                "GetStateParamStencilReference" =? ParamOf.[T<int>]
                 |> WithGetterInline "$this.getStateParam(\"StencilReference\")"
-                "GetStateParamStencilMask" =? ParamOf T<int>
+                "GetStateParamStencilMask" =? ParamOf.[T<int>]
                 |> WithGetterInline "$this.getStateParam(\"StencilMask\")"
-                "GetStateParamStencilWriteMask" =? ParamOf T<int>
+                "GetStateParamStencilWriteMask" =? ParamOf.[T<int>]
                 |> WithGetterInline "$this.getStateParam(\"StencilWriteMask\")"
-                "GetStateParamColorWriteEnable" =? ParamOf T<int>
+                "GetStateParamColorWriteEnable" =? ParamOf.[T<int>]
                 |> WithGetterInline "$this.getStateParam(\"ColorWriteEnable\")"
-                "GetStateParamBlendEquation" =? ParamOf State_BlendingEquation
+                "GetStateParamBlendEquation" =? ParamOf.[State_BlendingEquation]
                 |> WithGetterInline "$this.getStateParam(\"BlendEquation\")"
-                "GetStateParamTwoSidedStencilEnable" =? ParamOf T<bool>
+                "GetStateParamTwoSidedStencilEnable" =? ParamOf.[T<bool>]
                 |> WithGetterInline "$this.getStateParam(\"TwoSidedStencilEnable\")"
-                "GetStateParamCCWStencilFailOperation" =? ParamOf State_StencilOperation
+                "GetStateParamCCWStencilFailOperation" =? ParamOf.[State_StencilOperation]
                 |> WithGetterInline "$this.getStateParam(\"CCWStencilFailOperation\")"
-                "GetStateParamCCWStencilZFailOperation" =? ParamOf State_StencilOperation
+                "GetStateParamCCWStencilZFailOperation" =? ParamOf.[State_StencilOperation]
                 |> WithGetterInline "$this.getStateParam(\"CCWStencilZFailOperation\")"
-                "GetStateParamCCWStencilPassOperation" =? ParamOf State_StencilOperation
+                "GetStateParamCCWStencilPassOperation" =? ParamOf.[State_StencilOperation]
                 |> WithGetterInline "$this.getStateParam(\"CCWStencilPassOperation\")"
-                "GetStateParamCCWStencilComparisonFunction" =? ParamOf State_Comparison
+                "GetStateParamCCWStencilComparisonFunction" =? ParamOf.[State_Comparison]
                 |> WithGetterInline "$this.getStateParam(\"CCWStencilComparisonFunction\")"
-                "GetStateParamSeparateAlphaBlendEnable" =? ParamOf T<bool>
+                "GetStateParamSeparateAlphaBlendEnable" =? ParamOf.[T<bool>]
                 |> WithGetterInline "$this.getStateParam(\"SeparateAlphaBlendEnable\")"
-                "GetStateParamSourceBlendAlphaFunction" =? ParamOf State_BlendingFunction
+                "GetStateParamSourceBlendAlphaFunction" =? ParamOf.[State_BlendingFunction]
                 |> WithGetterInline "$this.getStateParam(\"SourceBlendAlphaFunction\")"
-                "GetStateParamDestinationBlendAlphaFunction" =? ParamOf State_BlendingFunction
+                "GetStateParamDestinationBlendAlphaFunction" =? ParamOf.[State_BlendingFunction]
                 |> WithGetterInline "$this.getStateParam(\"DestinationBlendAlphaFunction\")"
-                "GetStateParamBlendAlphaEquation" =? ParamOf State_BlendingEquation
+                "GetStateParamBlendAlphaEquation" =? ParamOf.[State_BlendingEquation]
                 |> WithGetterInline "$this.getStateParam(\"BlendAlphaEquation\")"
             ]
 
@@ -1527,7 +1527,7 @@ module O3D =
     let RayIntersectionInfoClass =
         Class "o3d.RayIntersectionInfo"
         |=> RayIntersectionInfo
-        |+> Protocol
+        |+> Instance
             [
                 "intersected" =? T<bool>
                 "position" =? Float3
@@ -1558,7 +1558,7 @@ module O3D =
             ]
         |=> Element
         |=> Inherits ParamObject
-        |+> Protocol
+        |+> Instance
             [
                 "createDrawElement" => Pack * Material ^-> T<unit>
                 "getBoundingBox" => T<int> ^-> BoundingBox
@@ -1570,7 +1570,7 @@ module O3D =
         Class "o3d.Shape"
         |=> Inherits ParamObject
         |=> Shape
-        |+> Protocol
+        |+> Instance
             [
                 "createDrawElements" => Pack * Material ^-> T<unit>
                 "elements" =? Type.ArrayOf Element
@@ -1587,7 +1587,7 @@ module O3D =
             ]
         |=> Inherits ParamObject
         |=> Transform
-        |+> Protocol
+        |+> Instance
             [
                 "addShape" => Shape ^-> T<unit>
                 "axisRotate" => T<float>?radians * Float3?axis ^-> T<unit>
@@ -1616,7 +1616,7 @@ module O3D =
             "RENDERMODE_CONTINUOUS"
             "RENDERMODE_ON_DEMAND"
         ]
-        |+> Protocol
+        |+> Instance
             [
                 "cancelFullscreenDisplay" => T<unit> ^-> T<unit>
                 "cleanup" => T<unit> ^-> T<unit>
@@ -1680,7 +1680,7 @@ module O3D =
             "CYCLE"
             "OSCILLATE"
         ]
-        |+> Protocol
+        |+> Instance
             [
                 "addCallback" => T<float> * (T<unit> ^-> T<unit>) ^-> T<unit>
                 "advance" => T<float> ^-> T<unit>
@@ -1698,7 +1698,7 @@ module O3D =
         Class "o3d.Function"
         |=> Function
         |=> Inherits NamedObject
-        |+> Protocol
+        |+> Instance
             [
                 "evaluate" => T<float> ^-> T<float>
             ]
@@ -1720,7 +1720,7 @@ module O3D =
             "CYCLE_RELATIVE"
             "OSCILLATE"
         ]
-        |+> Protocol
+        |+> Instance
             [
                 "addBezierKeys" => Type.ArrayOf T<float> ^-> T<unit>
                 "addLinearKeys" => Type.ArrayOf T<float> ^-> T<unit>
@@ -1760,7 +1760,7 @@ module O3D =
         Class "o3d.Field"
         |=> Inherits NamedObject
         |=> Field
-        |+> Protocol
+        |+> Instance
             [
                 "buffer" =? Buffer
                 "numComponents" =? T<int>
@@ -1776,7 +1776,7 @@ module O3D =
             ]
         |=> FunctionEval
         |=> Inherits ParamObject
-        |+> Protocol
+        |+> Instance
             [
                 "output" =? T<float>
             ]
@@ -1785,7 +1785,7 @@ module O3D =
         Class "o3d.IndexBuffer"
         |=> IndexBuffer
         |=> Inherits Buffer
-        |+> Protocol
+        |+> Instance
             [
                 "set" => Type.ArrayOf T<int> ^-> T<bool>
                 "setAt" => T<int>?startIndex * (Type.ArrayOf T<int>)?data ^-> T<unit>
@@ -1800,7 +1800,7 @@ module O3D =
             ]
         |=> Matrix4AxisRotation
         |=> Inherits ParamObject
-        |+> Protocol
+        |+> Instance
             [
                 "outputMatrix" =? Matrix4
             ]
@@ -1813,7 +1813,7 @@ module O3D =
             ]
         |=> Matrix4Composition
         |=> Inherits ParamObject
-        |+> Protocol
+        |+> Instance
             [
                 "outputMatrix" =? Matrix4
             ]
@@ -1826,7 +1826,7 @@ module O3D =
             ]
         |=> Matrix4Scale
         |=> Inherits ParamObject
-        |+> Protocol
+        |+> Instance
             [
                 "outputMatrix" =? Matrix4
             ]
@@ -1839,7 +1839,7 @@ module O3D =
             ]
         |=> Matrix4Translation
         |=> Inherits ParamObject
-        |+> Protocol
+        |+> Instance
             [
                 "outputMatrix" =? Matrix4
             ]
@@ -1848,7 +1848,7 @@ module O3D =
         Class "o3d.ParamArray"
         |=> ParamArray
         |=> Inherits NamedObject
-        |+> Protocol
+        |+> Instance
             [
                 "length" =? T<int>
                 "params" =? Type.ArrayOf Param
@@ -1876,7 +1876,7 @@ module O3D =
             ]
         |=> ParamOp16FloatsToMatrix4
         |=> Inherits ParamObject
-        |+> Protocol
+        |+> Instance
             [
                 "output" =? Matrix4
             ]
@@ -1889,7 +1889,7 @@ module O3D =
             ]
         |=> ParamOp2FloatsToFloat2
         |=> Inherits ParamObject
-        |+> Protocol
+        |+> Instance
             [
                 "output" =? Float2
             ]
@@ -1903,7 +1903,7 @@ module O3D =
             ]
         |=> ParamOp3FloatsToFloat3
         |=> Inherits ParamObject
-        |+> Protocol
+        |+> Instance
             [
                 "output" =? Float3
             ]
@@ -1918,7 +1918,7 @@ module O3D =
             ]
         |=> ParamOp4FloatsToFloat4
         |=> Inherits ParamObject
-        |+> Protocol
+        |+> Instance
             [
                 "output" =? Float4
             ]
@@ -1926,7 +1926,7 @@ module O3D =
     let StreamBankClass =
         Class "o3d.StreamBank"
         |=> StreamBank
-        |+> Protocol
+        |+> Instance
             [
                 "getVertexStream" => Stream_Semantic * T<int> ^-> Stream
                 "removeVertexStream" => Stream_Semantic * T<int> ^-> T<bool>
@@ -1954,31 +1954,31 @@ module O3D =
                 "TRIANGLESTRIP"
                 "TRIANGLEFAN"
             ]
-        |+> Protocol
+        |+> Instance
             [
-                "primitiveType" =% Primitive_PrimitiveType
+                "primitiveType" =@ Primitive_PrimitiveType
                 |> WithSourceName "primitiveType"
             ]
 
     let ProjectionParamMatrix4Class =
         Class "o3d.ProjectionParamMatrix4"
         |=> ProjectionParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let ProjectionInverseParamMatrix4Class =
         Class "o3d.ProjectionInverseParamMatrix4"
         |=> ProjectionInverseParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let ProjectionTransposeParamMatrix4Class =
         Class "o3d.ProjectionTransposeParamMatrix4"
         |=> ProjectionTransposeParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let ProjectionInverseTransposeParamMatrix4Class =
         Class "o3d.ProjectionInverseTransposeParamMatrix4"
         |=> ProjectionInverseTransposeParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let RenderFrameCounterClass =
         Class "o3d.RenderFrameCounter"
@@ -2035,7 +2035,7 @@ module O3D =
             ]
         |=> Skin
         |=> Inherits NamedObject
-        |+> Protocol
+        |+> Instance
             [
                 "getVertexInfluences" => T<int> ^-> Type.ArrayOf T<int>
                 "set" => RawData?data * T<int>?offset * T<int>?length ^-> T<bool>
@@ -2049,7 +2049,7 @@ module O3D =
         Class "o3d.VertexSource"
         |=> VertexSource
         |=> Inherits ParamObject
-        |+> Protocol
+        |+> Instance
             [
                 "bindStream" => VertexSource * Stream_Semantic * T<int> ^-> T<bool>
                 "unbindStream" => Stream_Semantic * T<int> ^-> T<bool>
@@ -2064,7 +2064,7 @@ module O3D =
             ]
         |=> SkinEval
         |=> Inherits VertexSource
-        |+> Protocol
+        |+> Instance
             [
                 "getVertexStream" => Stream_Semantic * T<int> ^-> Stream
                 "removeVertexStream" => Stream_Semantic * T<int> ^-> T<bool>
@@ -2076,7 +2076,7 @@ module O3D =
         Class "o3d.VertexBufferBase"
         |=> VertexBufferBase
         |=> Inherits Buffer
-        |+> Protocol
+        |+> Instance
             [
                 "get" => T<unit> ^-> Type.ArrayOf T<float>
                 "getAt" => T<int>?start * T<int>?count ^-> Type.ArrayOf T<float>
@@ -2109,7 +2109,7 @@ module O3D =
             ]
         |=> TreeTraversal
         |=> Inherits RenderNode
-        |+> Protocol
+        |+> Instance
             [
                 "registerDrawList" => DrawList * DrawContext * T<bool> ^-> T<unit>
                 "unregisterDrawList" => DrawList ^-> T<bool>
@@ -2130,7 +2130,7 @@ module O3D =
             ]
         |=> TRSToMatrix4
         |=> Inherits ParamObject
-        |+> Protocol
+        |+> Instance
             [
                 "output" =? Matrix4
             ]
@@ -2143,42 +2143,42 @@ module O3D =
     let ViewParamMatrix4Class =
         Class "o3d.ViewParamMatrix4"
         |=> ViewParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let ViewInverseParamMatrix4Class =
         Class "o3d.ViewInverseParamMatrix4"
         |=> ViewInverseParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let ViewTransposeParamMatrix4Class =
         Class "o3d.ViewTransposeParamMatrix4"
         |=> ViewTransposeParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let ViewInverseTransposeParamMatrix4Class =
         Class "o3d.ViewInverseTransposeParamMatrix4"
         |=> ViewInverseTransposeParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let ViewProjectionParamMatrix4Class =
         Class "o3d.ViewProjectionParamMatrix4"
         |=> ViewProjectionParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let ViewProjectionInverseParamMatrix4Class =
         Class "o3d.ViewProjectionInverseParamMatrix4"
         |=> ViewProjectionInverseParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let ViewProjectionTransposeParamMatrix4Class =
         Class "o3d.ViewProjectionTransposeParamMatrix4"
         |=> ViewProjectionTransposeParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let ViewProjectionInverseTransposeParamMatrix4Class =
         Class "o3d.ViewProjectionInverseTransposeParamMatrix4"
         |=> ViewProjectionInverseTransposeParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let ViewportClass =
         ClassWithInitArgs "o3d.Viewport"
@@ -2187,7 +2187,7 @@ module O3D =
             ]
         |=> Viewport
         |=> Inherits RenderNode
-        |+> Protocol
+        |+> Instance
             [
                 "viewport" =@ Float4
                 |> WithSourceName "viewport"
@@ -2196,62 +2196,62 @@ module O3D =
     let WorldViewParamMatrix4Class =
         Class "o3d.WorldViewParamMatrix4"
         |=> WorldViewParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let WorldViewInverseParamMatrix4Class =
         Class "o3d.WorldViewInverseParamMatrix4"
         |=> WorldViewInverseParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let WorldViewTransposeParamMatrix4Class =
         Class "o3d.WorldViewTransposeParamMatrix4"
         |=> WorldViewTransposeParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let WorldViewInverseTransposeParamMatrix4Class =
         Class "o3d.WorldViewInverseTransposeParamMatrix4"
         |=> WorldViewInverseTransposeParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let WorldViewProjectionParamMatrix4Class =
         Class "o3d.WorldViewProjectionParamMatrix4"
         |=> WorldViewProjectionParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let WorldViewProjectionInverseParamMatrix4Class =
         Class "o3d.WorldViewProjectionInverseParamMatrix4"
         |=> WorldViewProjectionInverseParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let WorldViewProjectionTransposeParamMatrix4Class =
         Class "o3d.WorldViewProjectionTransposeParamMatrix4"
         |=> WorldViewProjectionTransposeParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let WorldViewProjectionInverseTransposeParamMatrix4Class =
         Class "o3d.WorldViewProjectionInverseTransposeParamMatrix4"
         |=> WorldViewProjectionInverseTransposeParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let WorldParamMatrix4Class =
         Class "o3d.WorldParamMatrix4"
         |=> WorldParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let WorldInverseParamMatrix4Class =
         Class "o3d.WorldInverseParamMatrix4"
         |=> WorldInverseParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let WorldTransposeParamMatrix4Class =
         Class "o3d.WorldTransposeParamMatrix4"
         |=> WorldTransposeParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let WorldInverseTransposeParamMatrix4Class =
         Class "o3d.WorldInverseTransposeParamMatrix4"
         |=> WorldInverseTransposeParamMatrix4
-        |=> Inherits (ParamOf Matrix4)
+        |=> Inherits (ParamOf.[Matrix4])
 
     let o3d =
         Class "o3d"
@@ -2299,7 +2299,7 @@ module O3D =
                 ObjectBaseClass
                 PackClass
                 ParamClass
-                Generic - ParamOf
+                ParamOf
                 ParamArrayClass
                 ParamOp2FloatsToFloat2Class
                 ParamOp3FloatsToFloat3Class
@@ -2353,10 +2353,10 @@ module O3D =
 
     let arcball_ArcBall =
         Class "ArcBall"
-        |+> [
+        |+> Static [
                 Constructor (T<int> * T<int>)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "click" => Float2 ^-> T<unit>
                 "drag" => Float2 ^-> Quat
@@ -2366,13 +2366,13 @@ module O3D =
 
     let camera_CameraInfo =
         Class "CameraInfo"
-        |+> [
+        |+> Static [
                 Constructor (Matrix4?view * T<float>?zNear * T<float>?zFar * Float3?eye * Float3?target * Float3?up)
                 Constructor (Matrix4?view * T<float>?zNear * T<float>?zFar * Float3?eye * Float3?target)
                 Constructor (Matrix4?view * T<float>?zNear * T<float>?zFar * Float3?eye)
                 Constructor (Matrix4?view * T<float>?zNear * T<float>?zFar)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "computeProjection" => T<int> * T<int> ^-> Matrix4
                 "setAsOrthographic" => T<float>?magX * T<float>?magY ^-> T<unit>
@@ -2381,11 +2381,11 @@ module O3D =
                 "magX" =? T<float>
                 "magY" =? T<float>
                 "orthographic" =? T<bool>
-                "projection" =% Matrix4
+                "projection" =@ Matrix4
                 "eye" =? Float3
                 "target" =? Float3
                 "up" =? Float3
-                "view" =% Matrix4
+                "view" =@ Matrix4
                 "zFar" =? T<float>
                 "zNear" =? T<float>
             ]
@@ -2393,11 +2393,11 @@ module O3D =
 
     let canvas_CanvasQuad =
         Class "CanvasQuad"
-        |+> [
+        |+> Static [
                 Constructor (canvas_CanvasInfo' * T<int> * T<int> * T<bool> * Transform)
                 Constructor (canvas_CanvasInfo' * T<int> * T<int> * T<bool>)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "updateTexture" => T<unit> ^-> T<unit>
                 "canvas" =? Canvas
@@ -2410,25 +2410,25 @@ module O3D =
 
     let rendergraph_DrawPassInfo =
         Class "DrawPassInfo"
-        |+> [
+        |+> Static [
                 Constructor (Pack * DrawContext * DrawList_SortMethod * DrawList * RenderNode)
                 Constructor (Pack * DrawContext * DrawList_SortMethod * DrawList)
                 Constructor (Pack * DrawContext * DrawList_SortMethod)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "destroy" => T<unit> ^-> T<unit>
-                "drawList" =% DrawList
-                "drawPass" =% DrawPass
-                "pack" =% Pack
-                "root" =% RenderNode
-                "state" =% State
-                "stateSet" =% StateSet
+                "drawList" =@ DrawList
+                "drawPass" =@ DrawPass
+                "pack" =@ Pack
+                "root" =@ RenderNode
+                "state" =@ State
+                "stateSet" =@ StateSet
             ]
 
     let rendergraph_ViewInfo =
         Class "ViewInfo"
-        |+> [
+        |+> Static [
                 Constructor (Pack?pack * Transform?transform * RenderNode?parent * Float4?clearColor * T<float>?priority * Float4?viewport * DrawList?performanceDrawList * DrawList?zOrderedDrawList)
                 Constructor (Pack?pack * Transform?transform * RenderNode?parent * Float4?clearColor * T<float>?priority * Float4?viewport * DrawList?performanceDrawList)
                 Constructor (Pack?pack * Transform?transform * RenderNode?parent * Float4?clearColor * T<float>?priority * Float4?viewport)
@@ -2437,7 +2437,7 @@ module O3D =
                 Constructor (Pack?pack * Transform?transform * RenderNode?parent)
                 Constructor (Pack * Transform)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "createDrawPass" => DrawList_SortMethod * DrawList ^-> rendergraph_DrawPassInfo
                 "createDrawPass" => DrawList_SortMethod ^-> rendergraph_DrawPassInfo
@@ -2450,32 +2450,32 @@ module O3D =
                 "destroy" => T<unit> ^-> T<unit>
                 "clearBuffer" =? ClearBuffer
                 "drawContext" =? DrawContext
-                "pack" =% Pack
-                "performanceDrawList" =% DrawList
-                "performanceDrawPass" =% DrawPass
-                "performanceDrawPassInfo" =% rendergraph_DrawPassInfo
-                "performanceState" =% State
-                "performanceStateSet" =% StateSet
-                "priority" =% T<float>
-                "renderGraphRoot" =% RenderNode
-                "root" =% RenderNode
-                "treeRoot" =% Transform
-                "treeTraversal" =% TreeTraversal
-                "viewport" =% Viewport
-                "zOrderedDrawList" =% DrawList
-                "zOrderedDrawPass" =% DrawPass
-                "zOrderedDrawPassInfo" =% rendergraph_DrawPassInfo
-                "zOrderedState" =% State
-                "zOrderedStateSet" =% StateSet
+                "pack" =@ Pack
+                "performanceDrawList" =@ DrawList
+                "performanceDrawPass" =@ DrawPass
+                "performanceDrawPassInfo" =@ rendergraph_DrawPassInfo
+                "performanceState" =@ State
+                "performanceStateSet" =@ StateSet
+                "priority" =@ T<float>
+                "renderGraphRoot" =@ RenderNode
+                "root" =@ RenderNode
+                "treeRoot" =@ Transform
+                "treeTraversal" =@ TreeTraversal
+                "viewport" =@ Viewport
+                "zOrderedDrawList" =@ DrawList
+                "zOrderedDrawPass" =@ DrawPass
+                "zOrderedDrawPassInfo" =@ rendergraph_DrawPassInfo
+                "zOrderedState" =@ State
+                "zOrderedStateSet" =@ StateSet
             ]
 
     let canvas_CanvasInfo =
         Class "CanvasInfo"
         |=> canvas_CanvasInfo'
-        |+> [
+        |+> Static [
                 Constructor (Pack * Transform * rendergraph_ViewInfo)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "createQuad" => T<float>?w * T<float>?h * T<bool>?transparent * Transform?transform ^-> canvas_CanvasQuad
                 "createQuad" => T<float>?w * T<float>?h * T<bool>?transparent ^-> canvas_CanvasQuad
@@ -2495,10 +2495,10 @@ module O3D =
 
     let debug_DebugLineGroup =
         Class "DebugLineGroup"
-        |+> [
+        |+> Static [
                 Constructor (debug_DebugHelper' * Transform)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "addLine" => Float3?start * Float3?End * Float3?color ^-> debug_DebugLine'
                 "addLine" => Float3?start * Float3?End ^-> debug_DebugLine'
@@ -2516,10 +2516,10 @@ module O3D =
     let debug_DebugHelper =
         Class "DebugHelper"
         |=> debug_DebugHelper'
-        |+> [
+        |+> Static [
                 Constructor (Pack * rendergraph_ViewInfo)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "addAxes" => Transform ^-> T<unit>
                 "addAxis" => Transform ^-> T<unit>
@@ -2558,10 +2558,10 @@ module O3D =
     let debug_DebugLine =
         Class "DebugLine"
         |=> debug_DebugLine'
-        |+> [
+        |+> Static [
                 Constructor (debug_DebugLineGroup)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "destroy" => T<unit> ^-> T<unit>
                 "getId" => T<unit> ^-> T<unit>
@@ -2575,12 +2575,12 @@ module O3D =
 
     let debug_VertexInfo =
         Class "VertexInfo"
-        |+> [
+        |+> Static [
                 Constructor (Type.ArrayOf Float3 * Type.ArrayOf T<int>)
                 Constructor (Type.ArrayOf Float3)
                 Constructor (T<unit>)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "addLine" => T<int> * T<int> ^-> T<unit>
                 "addVertex" => T<float> * T<float> * T<float> ^-> T<unit>
@@ -2595,7 +2595,7 @@ module O3D =
 
     let effect_Description =
         Class "Description"
-        |+> Protocol
+        |+> Instance
             [
                 "description" =? T<string>
                 "shader" =? T<string>
@@ -2606,10 +2606,10 @@ module O3D =
 
     let error_ErrorCollector =
         Class "ErrorCollector"
-        |+> [
+        |+> Static [
                 Constructor (Client)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "finish" => T<unit> ^-> T<unit>
                 "errors" =? Type.ArrayOf T<string>
@@ -2617,7 +2617,7 @@ module O3D =
 
     let fps_ColorRect =
         Class "ColorRect"
-        |+> [
+        |+> Static [
                 Constructor (Pack?pack * Shape?shape * Transform?transform * T<float>?x * T<float>?y * T<float>?z * T<float>?width * T<float>?height * Float4?color)
                 "setColor" => Float4 ^-> T<unit>
                 "setPosition" => T<float> * T<float> ^-> T<unit>
@@ -2626,11 +2626,11 @@ module O3D =
 
     let fps_FPSManager =
         Class "FPSManager"
-        |+> [
+        |+> Static [
                 Constructor (Pack * T<int> * T<int> * RenderNode)
                 Constructor (Pack * T<int> * T<int>)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "resize" => T<int> * T<int> ^-> T<unit>
                 "setPerfVisible" => T<bool> ^-> T<unit>
@@ -2643,7 +2643,7 @@ module O3D =
 
     let io_ProgressInfo =
         Class "ProgressInfo"
-        |+> Protocol
+        |+> Instance
             [
                 "percent" =? T<float>
                 "dowloaded" =? T<string>
@@ -2656,14 +2656,14 @@ module O3D =
         let t = Type.New()
         Class "LoadInfo"
         |=> t
-        |+> [
+        |+> Static [
                 Constructor (ArchiveRequest * T<bool>)
                 Constructor (FileRequest * T<bool>)
                 Constructor (ArchiveRequest)
                 Constructor (FileRequest)
                 Constructor (T<unit>)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "addChild" => t ^-> T<unit>
                 "finish" => T<unit> ^-> T<unit>
@@ -2678,10 +2678,10 @@ module O3D =
         let t = Type.New()
         Class "ArchiveInfo"
         |=> t
-        |+> [
+        |+> Static [
                 Constructor (Pack * T<string> * (t * T<obj> ^-> T<unit>))
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "destroy" => T<unit> ^-> T<unit>
                 "getFileByUri" => T<string>?uri * T<bool>?caseInsensitive ^-> RawData
@@ -2699,7 +2699,7 @@ module O3D =
             Required = []
             Optional =
                 [
-                    "opt_animSource", (ParamOf T<float>).Type
+                    "opt_animSource", ParamOf.[T<float>]
                     "opt_async", T<bool>
                 ]
     }
@@ -2707,10 +2707,10 @@ module O3D =
     let loader_Loader =
         Class "Loader"
         |> WithSourceName "loader"
-        |+> [
+        |+> Static [
                 Constructor (T<unit> ^-> T<unit>)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "createLoader" => (T<unit> ^-> T<unit>) ^-> T<unit>
                 "finish" => T<unit> ^-> T<unit>
@@ -2763,36 +2763,36 @@ module O3D =
 
     let particles_ParticleSystem =
         Class "ParticleSystem"
-        |+> [
-                Constructor (Pack * rendergraph_ViewInfo * ParamOf T<float> * (T<unit> ^-> T<float>))
-                Constructor (Pack * rendergraph_ViewInfo * ParamOf T<float>)
+        |+> Static [
+                Constructor (Pack * rendergraph_ViewInfo * ParamOf.[T<float>] * (T<unit> ^-> T<float>))
+                Constructor (Pack * rendergraph_ViewInfo * ParamOf.[T<float>])
                 Constructor (Pack * rendergraph_ViewInfo)
             ]
-        |+> Protocol
+        |+> Instance
             [
-                "createParticleEmitter" => Texture * ParamOf T<float> ^-> particles_ParticleEmitter'
-                "createTrail" => Transform * T<float> * particles_ParticleSpec * Texture * (T<int> * particles_ParticleSpec ^-> T<unit>) * ParamOf T<float> ^-> particles_Trail'
+                "createParticleEmitter" => Texture * ParamOf.[T<float>] ^-> particles_ParticleEmitter'
+                "createTrail" => Transform * T<float> * particles_ParticleSpec * Texture * (T<int> * particles_ParticleSpec ^-> T<unit>) * ParamOf.[T<float>] ^-> particles_Trail'
                 "createTrail" => Transform * T<float> * particles_ParticleSpec * Texture * (T<int> * particles_ParticleSpec ^-> T<unit>) ^-> particles_Trail'
                 "createTrail" => Transform * T<float> * particles_ParticleSpec * Texture ^-> particles_Trail'
                 "createTrail" => Transform * T<float> * particles_ParticleSpec ^-> particles_Trail'
-                "clockParam" =? ParamOf T<float>
+                "clockParam" =? ParamOf.[T<float>]
                 "defaultColorTexture" =? Texture2D
                 "defaultRampTexture" =? Texture2D
-                "effects" =% Type.ArrayOf Effect
-                "pack" =% Pack
-                "particleStates" =% Type.ArrayOf State
-                "viewInfo" =% rendergraph_ViewInfo
+                "effects" =@ Type.ArrayOf Effect
+                "pack" =@ Pack
+                "particleStates" =@ Type.ArrayOf State
+                "viewInfo" =@ rendergraph_ViewInfo
             ]
 
     let particles_ParticleEmitter =
         Class "ParticleEmitter"
         |=> particles_ParticleEmitter'
-        |+> [
-                Constructor (particles_ParticleSystem * Texture * ParamOf T<float>)
+        |+> Static [
+                Constructor (particles_ParticleSystem * Texture * ParamOf.[T<float>])
                 Constructor (particles_ParticleSystem * Texture)
                 Constructor (particles_ParticleSystem)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "createOneShot" => Transform ^-> particles_OneShot'
                 "setColorRamp" => Type.ArrayOf T<float>
@@ -2800,36 +2800,36 @@ module O3D =
                 "setParameters" => particles_ParticleSpec ^-> T<unit>
                 "setState" => T<obj> ^-> T<unit>
                 "validateParameters" => particles_ParticleSpec ^-> T<unit>
-                "clockParam" =? ParamOf T<float>
-                "material" =% Material
+                "clockParam" =? ParamOf.[T<float>]
+                "material" =@ Material
                 "particleSystem" =? particles_ParticleSystem
-                "shape" =% Shape
+                "shape" =@ Shape
             ]
 
     let particles_Trail =
         Class "Trail"
         |=> particles_Trail'
         |=> Inherits particles_ParticleEmitter
-        |+> [
-                Constructor (particles_ParticleSystem * Transform * T<int> * particles_ParticleSpec * Texture * (T<int> * particles_ParticleSpec ^-> T<unit>) * ParamOf T<float>)
+        |+> Static [
+                Constructor (particles_ParticleSystem * Transform * T<int> * particles_ParticleSpec * Texture * (T<int> * particles_ParticleSpec ^-> T<unit>) * ParamOf.[T<float>])
                 Constructor (particles_ParticleSystem * Transform * T<int> * particles_ParticleSpec * Texture * (T<int> * particles_ParticleSpec ^-> T<unit>))
                 Constructor (particles_ParticleSystem * Transform * T<int> * particles_ParticleSpec * Texture)
                 Constructor (particles_ParticleSystem * Transform * T<int> * particles_ParticleSpec)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "birthParticles" => Float3 ^-> T<unit>
-                "transform" =% Transform
+                "transform" =@ Transform
             ]
 
     let particles_OneShot =
         Class "OneShot"
         |=> particles_OneShot'
-        |+> [
+        |+> Static [
                 Constructor (particles_ParticleEmitter * Transform)
                 Constructor (particles_ParticleEmitter)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "setParent" => Transform ^-> T<unit>
                 "trigger" => Float3 * Transform ^-> T<unit>
@@ -2862,17 +2862,17 @@ module O3D =
     let performance_PerformanceMonitor =
         Class "PerformanceMonitor"
         |=> Nested [performance_PerformanceMonitor_Options]
-        |+> [
+        |+> Static [
                 Constructor (T<float>?targetFPSMin * T<float>?targetFPSMax * (T<unit> ^-> T<unit>)?increaseQuality * (T<unit> ^-> T<unit>)?decreaseQuality * performance_PerformanceMonitor_Options?options)
                 Constructor (T<float>?targetFPSMin * T<float>?targetFPSMax * (T<unit> ^-> T<unit>)?increaseQuality * (T<unit> ^-> T<unit>)?decreaseQuality)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "onRender" => T<float> ^-> T<unit>
-                "damping" =% T<float>
-                "decreaseQuality" =% (T<unit> ^-> T<unit>)
-                "delayCycles" =% T<int>
-                "increaseQuality" =% (T<unit> ^-> T<unit>)
+                "damping" =@ T<float>
+                "decreaseQuality" =@ (T<unit> ^-> T<unit>)
+                "delayCycles" =@ T<int>
+                "increaseQuality" =@ (T<unit> ^-> T<unit>)
                 "meanFrameTime" =? T<float>
                 "minSamples" =? T<int>
                 "sampleCount" =? T<int>
@@ -2892,57 +2892,57 @@ module O3D =
         let t = Type.New()
         Class "TransformInfo"
         |=> t
-        |+> [
+        |+> Static [
                 Constructor (Transform * t)
                 Constructor (Transform)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "dump" => T<string>?prefix ^-> T<unit>
                 "getBoundingBox" => T<unit> ^-> BoundingBox
                 "pick" => picking_Ray ^-> picking_PickInfo'
                 "update" => T<unit> ^-> T<unit>
-                "parent" =% t
-                "transform" =% Transform
+                "parent" =@ t
+                "transform" =@ Transform
             ]
 
     let picking_ShapeInfo =
         Class "ShapeInfo"
-        |+> [
+        |+> Static [
                 Constructor (Shape * picking_TransformInfo)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "dump" => T<string>?prefix ^-> T<unit>
                 "getBoundingBox" => T<unit> ^-> BoundingBox
                 "pick" => picking_Ray ^-> picking_PickInfo'
                 "update" => T<unit> ^-> T<unit>
-                "boundingBox" =% BoundingBox
-                "parent" =% picking_TransformInfo
-                "shape" =% Shape
+                "boundingBox" =@ BoundingBox
+                "parent" =@ picking_TransformInfo
+                "shape" =@ Shape
             ]
 
     let picking_PickInfo =
         Class "PickInfo"
         |=> picking_PickInfo'
-        |+> [
+        |+> Static [
                 Constructor (Element * picking_ShapeInfo * RayIntersectionInfo * Float3)
             ]
-        |+> Protocol
+        |+> Instance
             [
-                "element" =% Element
-                "rayIntersectionInfo" =% RayIntersectionInfo
-                "shapeInfo" =% picking_ShapeInfo
-                "worldIntersectionPosition" =% Float3
+                "element" =@ Element
+                "rayIntersectionInfo" =@ RayIntersectionInfo
+                "shapeInfo" =@ picking_ShapeInfo
+                "worldIntersectionPosition" =@ Float3
             ]
 
     let primitives_VertexStreamInfo =
         Class "VertexStreamInfo"
-        |+> [
+        |+> Static [
                 Constructor (T<int> * Stream_Semantic * T<int>)
                 Constructor (T<int> * Stream_Semantic)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "addElement" => T<float> * T<float> * T<float> * T<float> ^-> T<unit>
                 "addElement" => T<float> * T<float> * T<float> ^-> T<unit>
@@ -2962,20 +2962,20 @@ module O3D =
                 "setElementVector" => T<int> * Float2 ^-> T<unit>
                 "setElementVector" => T<int> * Float3 ^-> T<unit>
                 "setElementVector" => T<int> * Float4 ^-> T<unit>
-                "elements" =% Type.ArrayOf T<float>
-                "numComponents" =% T<int>
-                "semantic" =% Stream_Semantic
-                "semanticIndex" =% T<int>
+                "elements" =@ Type.ArrayOf T<float>
+                "numComponents" =@ T<int>
+                "semantic" =@ Stream_Semantic
+                "semanticIndex" =@ T<int>
             ]
 
     let primitives_VertexInfo =
         let t = Type.New()
         Class "VertexInfo"
         |=> t
-        |+> [
+        |+> Static [
                 Constructor (T<unit>)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "addStream" => T<int> * Stream_Semantic * T<int> ^-> primitives_VertexStreamInfo
                 "addStream" => T<int> * Stream_Semantic ^-> primitives_VertexStreamInfo
@@ -2999,10 +2999,10 @@ module O3D =
         let t = Type.New()
         Class "Deserializer"
         |=> t
-        |+> [
+        |+> Static [
                 Constructor (Pack * T<obj>)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "addObject" => T<int> * T<obj> ^-> T<unit>
                 "deserializeBuffer" => t * T<obj> * T<string> * T<string> ^-> T<unit>
@@ -3011,38 +3011,38 @@ module O3D =
                 "run" => T<int> ^-> T<bool>
                 "run" => T<unit> ^-> T<bool>
                 "runBackground" => Client * Pack * T<float> * (Pack * T<obj> ^-> T<unit>) ^-> T<unit>
-                "archiveInfo" =% io_ArchiveInfo
-                "createCallbacks" =% T<obj>
-                "initCallbacks" =% T<obj>
-                "json" =% T<obj>
-                "pack" =% Pack
+                "archiveInfo" =@ io_ArchiveInfo
+                "createCallbacks" =@ T<obj>
+                "initCallbacks" =@ T<obj>
+                "json" =@ T<obj>
+                "pack" =@ Pack
             ]
 
     let simple_SimpleObject =
         let t = Type.New()
         Class "SimpleObject"
         |=> t
-        |+> [
+        |+> Static [
                 Constructor (T<unit>)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "init" => simple_SimpleInfo' * Transform ^-> T<unit>
                 "onPicked" => (t ^-> T<unit>) ^-> T<unit>
                 "onUpdate" => T<float> ^-> T<unit>
                 "setOnUpdate" => (T<float> ^-> T<unit>) ^-> (T<float> ^-> T<unit>)
                 "id" =? T<int>
-                "simpleInfo" =% simple_SimpleInfo'
-                "transform" =% Transform
+                "simpleInfo" =@ simple_SimpleInfo'
+                "transform" =@ Transform
             ]
 
     let simple_SimpleShape =
         Class "SimpleShape"
         |=> Inherits simple_SimpleObject
-        |+> [
+        |+> Static [
                 Constructor (simple_SimpleInfo' * Transform)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "getMaterial" => T<unit> ^-> Material
                 "getTexture" => T<unit> ^-> Texture
@@ -3054,26 +3054,26 @@ module O3D =
     let simple_SimpleScene =
         Class "SimpleScene"
         |=> Inherits simple_SimpleObject
-        |+> [
+        |+> Static [
                 Constructor (simple_SimpleInfo' * T<string> * Pack * Transform * ParamObject)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "bindParam" => ParamObject * T<string> * Param ^-> T<unit>
                 "setAnimTime" => T<float> ^-> T<unit>
-                "animTimeParam" =% ParamOf T<float>
-                "pack" =% Pack
-                "paramObject" =% ParamObject
-                "url" =% T<string>
+                "animTimeParam" =@ ParamOf.[T<float>]
+                "pack" =@ Pack
+                "paramObject" =@ ParamObject
+                "url" =@ T<string>
             ]
 
     let simple_SimpleInfo =
         Class "SimpleInfo"
         |=> simple_SimpleInfo'
-        |+> [
+        |+> Static [
                 Constructor (T<DomElement>)
             ]
-        |+> Protocol
+        |+> Instance
             [
                 "createBox" => T<float> * T<float> * T<float> ^-> simple_SimpleShape
                 "createCube" => T<float> ^-> simple_SimpleShape
@@ -3096,9 +3096,9 @@ module O3D =
                 "client" =? Client
                 "clientObject" =? T<DomElement>
                 "o3d" =? o3d
-                "pack" =% Pack
-                "root" =% Transform
-                "viewInfo" =% rendergraph_ViewInfo
+                "pack" =@ Pack
+                "root" =@ Transform
+                "viewInfo" =@ rendergraph_ViewInfo
             ]
 
     //////// Modules ////////
@@ -3106,13 +3106,13 @@ module O3D =
     let arcball =
         Class "o3djs.arcball"
         |=> Nested [arcball_ArcBall]
-        |+> [
+        |+> Static [
                 "create" => T<int> * T<int> ^-> arcball_ArcBall
             ]
 
     let base' =
         Class "o3djs.base"
-        |+> [
+        |+> Static [
                 "formatErrorStack" => Type.ArrayOf T<string> ^-> T<string>
                 "getFunctionName" => (T<obj> ^-> T<obj>) ^-> T<string>
                 "getStackTrace" => T<int> ^-> T<string>
@@ -3126,14 +3126,14 @@ module O3D =
                 "ready" => T<unit> ^-> T<bool>
                 "setErrorHandler" => Client ^-> T<unit>
                 "snapshotProvidedNamespaces" => T<unit> ^-> T<unit>
-                "o3djs.base.o3d" =% o3d
+                "o3djs.base.o3d" =@ o3d
                 |> WithSourceName "O3D"
             ]
 
     let camera =
         Class "o3djs.camera"
         |=> Nested [camera_CameraInfo]
-        |+> [
+        |+> Static [
                 "findCameras" => Transform ^-> Type.ArrayOf Transform
                 "fitContextToScene" => Transform * T<int> * T<int> * DrawContext ^-> T<unit>
                 "getCameraFitToScene" => Transform * T<int> * T<int> ^-> camera_CameraInfo
@@ -3146,7 +3146,7 @@ module O3D =
         Class "o3djs.canvas"
         |=> Nested [canvas_CanvasInfo
                     canvas_CanvasQuad]
-        |+> [
+        |+> Static [
                 "create" => Pack * Transform * rendergraph_ViewInfo ^-> canvas_CanvasInfo
                 "FX_STRING" =? T<string>
             ]
@@ -3157,7 +3157,7 @@ module O3D =
                     debug_DebugLine
                     debug_DebugLineGroup
                     debug_VertexInfo]
-        |+> [
+        |+> Static [
                 "createDebugHelper" => Pack * rendergraph_ViewInfo ^-> debug_DebugHelper
                 "createLineInCube" => Pack * Material * T<float> * Matrix4 ^-> Shape
                 "createLineCubeVertices" => T<float> * Matrix4 ^-> debug_VertexInfo
@@ -3170,7 +3170,7 @@ module O3D =
 
     let dump =
         Class "o3djs.dump"
-        |+> [
+        |+> Static [
                 "dump" => T<string> ^-> T<unit>
                 |> WithSourceName "dump"
                 "dumpBoundingBox" => T<string>?label * BoundingBox?boundingBox * T<string>?prefix ^-> T<unit>
@@ -3217,7 +3217,7 @@ module O3D =
 
     let effect =
         Class "o3djs.effect"
-        |+> [
+        |+> Static [
                 "attachStandardShader" => Pack * Material * Float3 * effect_Type ^-> T<bool>
                 "buildStandardShaderString" => Material * effect_Type ^-> effect_Description
                 "createCheckerEffect" => Pack ^-> Effect
@@ -3228,16 +3228,16 @@ module O3D =
                 "getStandardShader" => Pack * Material * effect_Type ^-> Effect
                 "isColladaLightingType" => T<string> ^-> T<bool>
                 "loadEffect" => Effect * T<string> ^-> T<unit>
-                "COLLADA_LIGHTING_TYPE_PARAM_NAME" =% T<string>
-                "COLLADA_LIGHTING_TYPES" =% T<obj>
-                "COLLADA_SAMPLER_PARAMETER_PREFIXES" =% Type.ArrayOf T<string>
-                "TWO_COLOR_CHECKER_EFFECT_NAME" =% T<string>
-                "TWO_COLOR_CHECKER_FXSTRING" =% T<string>
+                "COLLADA_LIGHTING_TYPE_PARAM_NAME" =@ T<string>
+                "COLLADA_LIGHTING_TYPES" =@ T<obj>
+                "COLLADA_SAMPLER_PARAMETER_PREFIXES" =@ Type.ArrayOf T<string>
+                "TWO_COLOR_CHECKER_EFFECT_NAME" =@ T<string>
+                "TWO_COLOR_CHECKER_FXSTRING" =@ T<string>
             ]
 
     let element =
         Class "o3djs.element"
-        |+> [
+        |+> Static [
                 "addMissingTexCoordStreams" => Element ^-> T<unit>
                 "duplicateElement" => Pack * Element ^-> Element
                 "getNormalForTriangle" => Primitive * T<int> * T<bool> ^-> Float3
@@ -3248,7 +3248,7 @@ module O3D =
     let error =
         Class "o3djs.error"
         |=> Nested [error_ErrorCollector]
-        |+> [
+        |+> Static [
                 "createErrorCollector" => Client ^-> error_ErrorCollector
                 "setDefaultErrorHandler" => Client ^-> T<unit>
                 "setErrerHandler" => Client * (T<string> ^-> T<unit>) ^-> (T<string> ^-> T<unit>)
@@ -3256,7 +3256,7 @@ module O3D =
 
     let event =
         Class "o3djs.event"
-        |+> [
+        |+> Static [
                 "addEventListener" => T<DomElement> * T<string> * (T<unit> ^-> T<unit>) ^-> T<unit>
                 "addEventListener" => T<DomElement> * T<string> * (T<DomEvent> ^-> T<unit>) ^-> T<unit>
                 "addEventListener" => T<DomElement> * T<string> * (T<DomMouseEvent> ^-> T<unit>) ^-> T<unit>
@@ -3285,11 +3285,11 @@ module O3D =
         Class "o3djs.fps"
         |=> Nested [fps_ColorRect
                     fps_FPSManager]
-        |+> [
+        |+> Static [
                 "createFPSManager" => Pack * T<int> * T<int> * RenderNode ^-> fps_FPSManager
-                "CONST_COLOR_EFFECT" =% T<string>
-                "NUM_FRAMES_TO_AVERAGE" =% T<int>
-                "PERF_BAR_COLORS" =% Type.ArrayOf Float4
+                "CONST_COLOR_EFFECT" =@ T<string>
+                "NUM_FRAMES_TO_AVERAGE" =@ T<int>
+                "PERF_BAR_COLORS" =@ Type.ArrayOf Float4
             ]
 
     let io =
@@ -3297,7 +3297,7 @@ module O3D =
         |=> Nested [io_ArchiveInfo
                     io_LoadInfo
                     io_ProgressInfo]
-        |+> [
+        |+> Static [
                 "createLoadInfo" => ArchiveRequest * T<bool> ^-> io_LoadInfo
                 "createLoadInfo" => FileRequest * T<bool> ^-> io_LoadInfo
                 "createLoadInfo" => ArchiveRequest ^-> io_LoadInfo
@@ -3316,13 +3316,13 @@ module O3D =
     let loader =
         Class "o3djs.loader"
         |=> Nested [loader_Loader]
-        |+> [
+        |+> Static [
                 "createLoader" => (T<unit> ^-> T<unit>) ^-> loader_Loader
             ]
 
     let material =
         Class "o3djs.material"
-        |+> [
+        |+> Static [
                 "attachStandardEffect" => Pack * Material * rendergraph_ViewInfo * effect_Type ^-> T<unit>
                 "bindParams" => Pack * T<obj> ^-> T<unit>
                 "bindParamsOnMaterial" => Material * T<obj> ^-> T<unit>
@@ -3352,7 +3352,7 @@ module O3D =
 
     let matrix4 =
         Class "o3djs.math.matrix4"
-        |+> [
+        |+> Static [
                 "axisRotate" => Matrix4 * Float3 * T<float> ^-> Matrix4
                 "axisRotate" => Matrix4 * Float4 * T<float> ^-> Matrix4
                 "axisRotation" => Float3 * T<float> ^-> Matrix4
@@ -3409,7 +3409,7 @@ module O3D =
     let math =
         Class "o3djs.math"
         |=> Nested [matrix4]
-        |+> [
+        |+> Static [
                 "addMatrix" => Matrix * Matrix ^-> Matrix
                 |> WithSourceName "Add"
                 "addMatrix" => Matrix2 * Matrix2 ^-> Matrix2
@@ -3677,7 +3677,7 @@ module O3D =
 
     let columnMajor =
         Class "o3djs.math.columnMajor"
-        |+> [
+        |+> Static [
                 "column" => Matrix * T<float> ^-> FloatN
                 "column" => Matrix2 * T<float> ^-> Float2
                 "column" => Matrix3 * T<float> ^-> Float3
@@ -3720,7 +3720,7 @@ module O3D =
 
     let rowMajor =
         Class "o3djs.math.rowMajor"
-        |+> [
+        |+> Static [
                 "column" => Matrix * T<float> ^-> FloatN
                 "column" => Matrix2 * T<float> ^-> Float2
                 "column" => Matrix3 * T<float> ^-> Float3
@@ -3757,7 +3757,7 @@ module O3D =
 
     let pack =
         Class "o3djs.pack"
-        |+> [
+        |+> Static [
                 "preparePack" => Pack * rendergraph_ViewInfo * Pack ^-> T<unit>
                 "preparePack" => Pack * rendergraph_ViewInfo ^-> T<unit>
             ]
@@ -3769,15 +3769,15 @@ module O3D =
                     particles_ParticleSpec
                     particles_ParticleSystem
                     particles_Trail]
-        |+> [
-                "createParticleSystem" => Pack * rendergraph_ViewInfo * ParamOf T<float> * (T<unit> ^-> T<float>) ^-> particles_ParticleSystem
-                "FX_STRINGS" =% Type.ArrayOf particles_Fx
+        |+> Static [
+                "createParticleSystem" => Pack * rendergraph_ViewInfo * ParamOf.[T<float>] * (T<unit> ^-> T<float>) ^-> particles_ParticleSystem
+                "FX_STRINGS" =@ Type.ArrayOf particles_Fx
             ]
 
     let performance =
         Class "o3djs.performance"
         |=> Nested [performance_PerformanceMonitor]
-        |+> [
+        |+> Static [
                 "createPerformanceMonitor" => T<float>?targetFPSMin * T<float>?targetFPSMax * (T<unit> ^-> T<unit>)?increaseQuality * (T<unit> ^-> T<unit>)?decreaseQuality * performance_PerformanceMonitor_Options?options ^-> performance_PerformanceMonitor
                 "createPerformanceMonitor" => T<float>?targetFPSMin * T<float>?targetFPSMax * (T<unit> ^-> T<unit>)?increaseQuality * (T<unit> ^-> T<unit>)?decreaseQuality ^-> performance_PerformanceMonitor
             ]
@@ -3788,7 +3788,7 @@ module O3D =
                     picking_Ray
                     picking_ShapeInfo
                     picking_TransformInfo]
-        |+> [
+        |+> Static [
                 "clientPositionToWorldRay" => T<int>?clientXPosition * T<int>?clientYPosition * DrawContext * T<int>?clientWidth * T<int>?clientHeight ^-> picking_Ray
                 "clientPositionToWorldRayEx" => T<int>?clientXPosition * T<int>?clientYPosition * Matrix4?view * Matrix4?projection * T<int>?clientWidth * T<int>?clientHeight ^-> picking_Ray
                 "createPickInfo" => Element * picking_ShapeInfo * RayIntersectionInfo * Float3 ^-> picking_PickInfo
@@ -3805,7 +3805,7 @@ module O3D =
         Class "o3djs.primitives"
         |=> Nested [primitives_VertexInfo
                     primitives_VertexStreamInfo]
-        |+> [
+        |+> Static [
                 "createBox" => Pack?pack * Material?material * T<float>?width * T<float>?height * T<float>?depth * Matrix4 ^-> Shape
                 "createBox" => Pack?pack * Material?material * T<float>?width * T<float>?height * T<float>?depth ^-> Shape
                 "createCube" => Pack?pack * Material?material * T<float>?size * Matrix4 ^-> Shape
@@ -3852,7 +3852,7 @@ module O3D =
 
     let quaternions =
         Class "o3djs.quaternions"
-        |+> [
+        |+> Static [
                 "add" => T<float> * T<float> ^-> T<float>
                 "addQuaternionQuaternion" => Quat * Quat ^-> Quat
                 |> WithSourceName "Add"
@@ -3904,7 +3904,7 @@ module O3D =
         Class "o3djs.rendergraph"
         |=> Nested [rendergraph_DrawPassInfo
                     rendergraph_ViewInfo]
-        |+> [
+        |+> Static [
                 "createBasicView" => Pack?pack * Transform?transform * RenderNode?parent * Float4?clearColor * T<float>?priority * Float4?viewport ^-> rendergraph_ViewInfo
                 "createBasicView" => Pack?pack * Transform?transform * RenderNode?parent * Float4?clearColor * T<float>?priority ^-> rendergraph_ViewInfo
                 "createBasicView" => Pack?pack * Transform?transform * RenderNode?parent * Float4?clearColor ^-> rendergraph_ViewInfo
@@ -3925,7 +3925,7 @@ module O3D =
 
     let scene =
         Class "o3djs.scene"
-        |+> [
+        |+> Static [
                 "loadScene" => Client?client * Pack?pack * Transform?transform * T<string>?url * (Pack * Transform * T<obj> ^-> T<unit>)?callback * serialization_Options?options ^-> io_LoadInfo
                 "loadScene" => Client?client * Pack?pack * Transform?transform * T<string>?url * (Pack * Transform * T<obj> ^-> T<unit>)?callback ^-> io_LoadInfo
             ]
@@ -3933,18 +3933,18 @@ module O3D =
     let serialization =
         Class "o3djs.serialization"
         |=> Nested [serialization_Deserializer]
-        |+> [
+        |+> Static [
                 "createDeserializer" => Pack * T<obj> ^-> serialization_Deserializer
                 "deserialize" => Pack * T<obj> ^-> T<unit>
                 "deserializeArchive" => io_ArchiveInfo * T<string> * Client * Pack * Transform?parent * (Pack * Transform * T<obj> ^-> T<unit>) * serialization_Options ^-> T<unit>
                 "deserializeArchive" => io_ArchiveInfo * T<string> * Client * Pack * Transform?parent * (Pack * Transform * T<obj> ^-> T<unit>) ^-> T<unit>
-                "CURVE_KEY_TYPES" =% T<obj>
-                "supportedVersion" =% T<int>
+                "CURVE_KEY_TYPES" =@ T<obj>
+                "supportedVersion" =@ T<int>
             ]
 
     let shape =
         Class "o3djs.shape"
-        |+> [
+        |+> Static [
                 "addMissingTexCoordStreams" => Shape ^-> T<unit>
                 "deleteDuplicateShape" => Shape * Pack ^-> T<unit>
                 "duplicateShape" => Pack * Shape ^-> Shape
@@ -3959,13 +3959,13 @@ module O3D =
                     simple_SimpleObject
                     simple_SimpleScene
                     simple_SimpleShape]
-        |+> [
+        |+> Static [
                 "create" => T<DomElement> ^-> simple_SimpleShape
             ]
 
     let texture =
         Class "o3djs.texture"
-        |+> [
+        |+> Static [
                 "canMakeMipsAndScale" => Texture_Format ^-> T<bool>
                 "computeNumLevels" => T<int> * T<int> ^-> T<int>
                 "createCubeTextureFrom6Bitmaps" => Pack * T<float> * Type.ArrayOf Bitmap ^-> Texture
@@ -3981,13 +3981,13 @@ module O3D =
     let ClientElement =
         Class "o3djs.ClientElement"
         |=> Inherits T<DomElement>
-        |+> Protocol [
+        |+> Instance [
                 "client" =? Client
             ]
 
     let util =
         Class "o3djs.util"
-        |+> [
+        |+> Static [
                 "addScriptUri" => T<string> ^-> T<unit>
                 "arrayContains" => Type.ArrayOf T<obj> * T<obj> ^-> T<bool>
                 "callV8" => T<obj> * (T<obj> ^-> T<obj>) * T<obj> * Type.ArrayOf T<obj> ^-> T<obj>
@@ -4033,7 +4033,7 @@ module O3D =
 
     let webgl =
         Class "o3djs.webgl"
-        |+> [
+        |+> Static [
                 "makeClients" => (Type.ArrayOf ClientElement ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback * T<string>?id * T<string>?tag ^-> T<unit>
                 "makeClients" => (Type.ArrayOf ClientElement ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback * T<string>?id ^-> T<unit>
                 "makeClients" => (Type.ArrayOf ClientElement ^-> T<unit>)?callback * T<string>?features * T<string>?requiredVersion * (Renderer_InitStatus * T<string> * T<string> * T<string> ^-> T<unit>)?failureCallback ^-> T<unit>
@@ -4086,14 +4086,14 @@ module O3D =
                 util
                 webgl
             ]
-        |+> [
+        |+> Static [
                 "exportSymbol" => T<string> * T<obj> * T<obj> ^-> T<unit>
                 "getObjectByName" => T<string> * T<obj> ^-> T<obj>
                 "isDef" => T<obj> ^-> T<bool>
                 "provide" => T<string> ^-> T<unit>
                 "require" => T<string> ^-> T<unit>
                 "basePath" =? T<string>
-                "BROWSER_ONLY" =% T<bool>
+                "BROWSER_ONLY" =@ T<bool>
                 "global" =? T<obj>
                 "test" =? T<obj>
             ]
@@ -4146,7 +4146,7 @@ module O3D =
                 ObjectBaseClass
                 PackClass
                 ParamClass
-                Generic - ParamOf
+                ParamOf
                 ParamArrayClass
                 ParamOp2FloatsToFloat2Class
                 ParamOp3FloatsToFloat3Class
