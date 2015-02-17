@@ -45,16 +45,9 @@
     </Otherwise>
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
-  <Import Project="../build/net45/$(Name).proj" />
+  <Import Project="../build/net40/$(Name).proj" />
   <ItemGroup>
     <Compile Include="Pool.fs" />
     <Compile Include="Samples.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\if-ws-o3d\IntelliFactory.WebSharper.O3D.fsproj">
-      <Name>IntelliFactory.WebSharper.O3D</Name>
-      <Project>{730ae40a-001c-4137-972d-898dc7c2bf0a}</Project>
-      <Private>True</Private>
-    </ProjectReference>
   </ItemGroup>
 </Project>

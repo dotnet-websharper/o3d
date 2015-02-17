@@ -1511,7 +1511,8 @@ type Pool [<JavaScript>]() =
                (Shot.Null, 0)
         if current.Difficulty <> infinity then
             let (cx, cy, _) = cue.Center
-            let theta = Math.Atan2(O3DJS.Math.Sub((cx, cy), current.Target))
+            let (tx, ty) = O3DJS.Math.Sub((cx, cy), current.Target)
+            let theta = Math.Atan2(tx, ty)
             let power = defaultArg power current.Power
             g_queue <- Array.append
                 [|
