@@ -7,12 +7,12 @@ let bt =
     |> fun bt -> bt.WithFramework(bt.Framework.Net40)
 
 let main =
-    bt.WebSharper.Extension("IntelliFactory.WebSharper.O3D")
+    bt.WebSharper.Extension("WebSharper.O3D")
         .Embed(["o3d.js"])
         .SourcesFromProject()
 
 let test =
-    bt.WebSharper.HtmlWebsite("IntelliFactory.WebSharper.O3D.Tests")
+    bt.WebSharper.HtmlWebsite("WebSharper.O3D.Tests")
         .SourcesFromProject()
         .References(fun r -> [r.Project main])
 

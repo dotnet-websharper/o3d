@@ -1,8 +1,8 @@
-﻿module IntelliFactory.WebSharper.O3D.Tests.Pool
+﻿module WebSharper.O3D.Tests.Pool
 
-open IntelliFactory.WebSharper.O3D
-open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.JavaScript
+open WebSharper.O3D
+open WebSharper
+open WebSharper.JavaScript
 
 type Float2 = float * float
 type Float3 = float * float * float

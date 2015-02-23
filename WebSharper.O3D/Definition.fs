@@ -1,12 +1,12 @@
-﻿namespace IntelliFactory.WebSharper.O3DExtension
+﻿namespace WebSharper.O3DExtension
 
-open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.JavaScript.Dom
-open IntelliFactory.WebSharper.InterfaceGenerator
-type DomElement       = IntelliFactory.WebSharper.JavaScript.Dom.Element
-type DomEvent         = IntelliFactory.WebSharper.JavaScript.Dom.Event
-type DomMouseEvent    = IntelliFactory.WebSharper.JavaScript.Dom.MouseEvent
-type DomKeyboardEvent = IntelliFactory.WebSharper.JavaScript.Dom.KeyboardEvent
+open WebSharper
+open WebSharper.JavaScript.Dom
+open WebSharper.InterfaceGenerator
+type DomElement       = WebSharper.JavaScript.Dom.Element
+type DomEvent         = WebSharper.JavaScript.Dom.Event
+type DomMouseEvent    = WebSharper.JavaScript.Dom.MouseEvent
+type DomKeyboardEvent = WebSharper.JavaScript.Dom.KeyboardEvent
 
 module O3D =
 
@@ -4100,10 +4100,10 @@ module O3D =
 
     let Assembly =
         Assembly [
-            Namespace "IntelliFactory.WebSharper.O3D.Resources" [
+            Namespace "WebSharper.O3D.Resources" [
                 (Resource "Js" "o3d.js").AssemblyWide()
             ]
-            Namespace "IntelliFactory.WebSharper.O3D.O3D" [
+            Namespace "WebSharper.O3D.O3D" [
                 ArchiveRequestClass
                 BezierCurveKeyClass
                 BitmapClass
@@ -4190,7 +4190,7 @@ module O3D =
                 VertexSourceClass
                 ViewportClass
             ]
-            Namespace "IntelliFactory.WebSharper.O3D.O3DJS" [
+            Namespace "WebSharper.O3D.O3DJS" [
                 arcball
                 base'
                 camera

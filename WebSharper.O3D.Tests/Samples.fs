@@ -1,13 +1,13 @@
-﻿namespace IntelliFactory.WebSharper.O3D.Tests
+﻿namespace WebSharper.O3D.Tests
 
-open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.JavaScript
-open IntelliFactory.WebSharper.O3D
-open IntelliFactory.WebSharper.O3D.Tests.Pool
+open WebSharper
+open WebSharper.JavaScript
+open WebSharper.O3D
+open WebSharper.O3D.Tests.Pool
 
 module Main =
 
-    open IntelliFactory.WebSharper.Html.Client
+    open WebSharper.Html.Client
 
     [<JavaScript>]
     let Samples () =
@@ -26,13 +26,13 @@ type Samples() =
         Main.Samples() :> _
 
 
-open IntelliFactory.WebSharper.Sitelets
+open WebSharper.Sitelets
 
 type Action = | Index
 
 module Site =
 
-    open IntelliFactory.WebSharper.Html.Server
+    open WebSharper.Html.Server
 
     let HomePage =
         Content.PageContent <| fun ctx ->
