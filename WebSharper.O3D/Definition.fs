@@ -20,12 +20,10 @@ module O3D =
             )
 
         let ConstantStringsType name strings =
-            let t = Type.New()
             Class name
-            |=> t
             |+> Static (strings
                  |> List.map (fun s ->
-                    s =? t
+                    s =? TSelf
                     |> WithGetterInline ("\"" + s + "\"")
                     :> CodeModel.IClassMember))
 
@@ -511,7 +509,7 @@ module O3D =
                 |> WithSourceName "format"
                 "levels" =? T<int>
             ]
-        |> Constants "o3d.Format" Texture_Format [
+        |> Constants "o3d.Texture.Format" Texture_Format [
             "UNKNOWN_FORMAT"
             "XRGB8"
             "ARGB8"
@@ -539,7 +537,7 @@ module O3D =
                 |> WithSourceName "semantic"
                 "width" =? T<int>
             ]
-        |> Constants "o3d.Semantic" Bitmap_Semantic [
+        |> Constants "o3d.Bitmap.Semantic" Bitmap_Semantic [
             "FACE_POSITIVE_X"
             "FACE_NEGATIVE_X"
             "FACE_POSITIVE_Y"
@@ -606,7 +604,7 @@ module O3D =
                 "setRect" => TextureCUBE_CubeFace?face * T<int>?level * T<int>?dstx * T<int>?dsty * T<int>?srcwidth * Type.ArrayOf T<float> ^-> T<unit>
                 "edgeLength" =? T<int>
             ]
-        |> Constants "o3d.CubeFace" TextureCUBE_CubeFace [
+        |> Constants "o3d.TextureCUBE.CubeFace" TextureCUBE_CubeFace [
             "FACE_POSITIVE_X"
             "FACE_NEGATIVE_X"
             "FACE_POSITIVE_Y"
@@ -692,7 +690,7 @@ module O3D =
         Class "o3d.CanvasShader"
         |=> CanvasShader
         |=> Inherits ParamObject
-        |> Constants "o3d.TileMode" CanvasShader_TileMode [
+        |> Constants "o3d.CanvasShader.TileMode" CanvasShader_TileMode [
             "CLAMP"
             "REPEAT"
             "MIRROR"
@@ -719,13 +717,13 @@ module O3D =
                 "textAlign" =@ CanvasPaint_TextAlign
                 |> WithSourceName "textAlign"
             ]
-        |> Constants "o3d.Style" CanvasPaint_Style [
+        |> Constants "o3d.CanvasPaint.Style" CanvasPaint_Style [
             "NORMAL"
             "BOLD"
             "ITALIC"
             "BOLD_ITALIC"
         ]
-        |> Constants "o3d.TextAlign" CanvasPaint_TextAlign [
+        |> Constants "o3d.CanvasPaint.TextAlign" CanvasPaint_TextAlign [
             "LEFT"
             "CENTER"
             "RIGHT"
@@ -1190,14 +1188,14 @@ module O3D =
     let EventClass =
         Class "o3d.Event"
         |=> Event
-        |> Constants "o3d.Button" Event_Button [
+        |> Constants "o3d.Event.Button" Event_Button [
             "BUTTON_LEFT"
             "BUTTON_RIGHT"
             "BUTTON_MIDDLE"
             "BUTTON_4"
             "BUTTON_5"
         ]
-        |> Constants "o3d.Type" Event_Type [
+        |> Constants "o3d.Event.Type" Event_Type [
             "invalid"
             "click"
             "dblclick"
@@ -1272,7 +1270,7 @@ module O3D =
     let CursorClass =
         Class "o3d.Cursor"
         |=> Cursor
-        |> Constants "o3d.Type" Cursor_CursorType [
+        |> Constants "o3d.Cursor.Type" Cursor_CursorType [
             "DEFAULT"
             "NONE"
             "CROSSHAIR"
@@ -1295,14 +1293,14 @@ module O3D =
     let RendererClass =
         Class "o3d.Renderer"
         |=> Renderer
-        |> Constants "o3d.InitStatus" Renderer_InitStatus [
+        |> Constants "o3d.Renderer.InitStatus" Renderer_InitStatus [
             "UNINITIALIZED"
             "SUCCESS"
             "GPU_NOT_UP_TO_SPEC"
             "OUT_OF_RESOURCES"
             "INITIALIZATION_ERROR"
         ]
-        |> Constants "o3d.DisplayModes" Renderer_DisplayModes [
+        |> Constants "o3d.Renderer.DisplayModes" Renderer_DisplayModes [
             "DISPLAY_MODE_DEFAULT"
         ]
 
@@ -1310,7 +1308,7 @@ module O3D =
         Class "o3d.DrawList"
         |=> DrawList
         |=> Inherits NamedObject
-        |> Constants "o3d.SortMethod" DrawList_SortMethod [
+        |> Constants "o3d.DrawList.SortMethod" DrawList_SortMethod [
             "BY_PERFORMANCE"
             "BY_Z_ORDER"
             "BY_PRIORITY"
@@ -1319,7 +1317,7 @@ module O3D =
     let StreamClass =
         Class "o3d.Stream"
         |=> Stream
-        |> Constants "o3d.Semantic" Stream_Semantic [
+        |> Constants "o3d.Stream.Semantic" Stream_Semantic [
             "UNKNOWN_SEMANTIC"
             "POSITION"
             "NORMAL"
@@ -1341,7 +1339,7 @@ module O3D =
         let semantic = Type.New()
         Class "o3d.EffectParameterInfo"
         |=> EffectParameterInfo
-        |> Constants "o3d.Semantic" semantic [
+        |> Constants "o3d.EffectParameterInfo.Semantic" semantic [
             "UPPERCASE"
         ]
         |+> Instance
@@ -1367,7 +1365,7 @@ module O3D =
         Class "o3d.Effect"
         |=> Effect
         |=> Inherits ParamObject
-        |> Constants "o3d.MatrixLoadOrder" Effect_MatrixLoadOrder [
+        |> Constants "o3d.Effect.MatrixLoadOrder" Effect_MatrixLoadOrder [
             "ROW_MAJOR"
             "COLUMN_MAJOR"
         ]
@@ -1387,14 +1385,14 @@ module O3D =
     let StateClass =
         Class "o3d.State"
         |=> State
-        |> Constants "o3d.BlendingEquation" State_BlendingEquation [
+        |> Constants "o3d.State.BlendingEquation" State_BlendingEquation [
             "BLEND_ADD"
             "BLEND_SUBSTRACT"
             "BLEND_REVERSE_SUBSTRACT"
             "BLEND_MIN"
             "BLEND_MAX"
         ]
-        |> Constants "o3d.BlendingFunction" State_BlendingFunction [
+        |> Constants "o3d.State.BlendingFunction" State_BlendingFunction [
             "BLENDFUNC_ZERO"
             "BLENDFUNC_ONE"
             "BLENDFUNC_SOURCE_COLOR"
@@ -1407,7 +1405,7 @@ module O3D =
             "BLENDFUNC_INVERSE_DESTINATION_COLOR"
             "BLENDFUNC_SOURCE_ALPHA_SATURATE"
         ]
-        |> Constants "o3d.Comparison" State_Comparison [
+        |> Constants "o3d.State.Comparison" State_Comparison [
             "CMP_NEVER"
             "CMP_LESS"
             "CMP_EQUAL"
@@ -1417,17 +1415,17 @@ module O3D =
             "CMP_GEQUAL"
             "CMP_ALWAYS"
         ]
-        |> Constants "o3d.Cull" State_Cull [
+        |> Constants "o3d.State.Cull" State_Cull [
             "CULL_NONE"
             "CULL_CW"
             "CULL_CCW"
         ]
-        |> Constants "o3d.Fill" State_Fill [
+        |> Constants "o3d.State.Fill" State_Fill [
             "POINT"
             "WIREFRAME"
             "SOLID"
         ]
-        |> Constants "o3d.StencilOperation" State_StencilOperation [
+        |> Constants "o3d.State.StencilOperation" State_StencilOperation [
             "STENCIL_KEEP"
             "STENCIL_ZERO"
             "STENCIL_REPLACE"
@@ -1612,7 +1610,7 @@ module O3D =
     let ClientClass =
         Class "o3d.Client"
         |=> Client
-        |> Constants "o3d.RenderMode" Client_RenderMode [
+        |> Constants "o3d.State.RenderMode" Client_RenderMode [
             "RENDERMODE_CONTINUOUS"
             "RENDERMODE_ON_DEMAND"
         ]
@@ -1674,7 +1672,7 @@ module O3D =
             ]
         |=> Counter
         |=> Inherits ParamObject
-        |> Constants "o3d.CountMode" Counter_CountMode [
+        |> Constants "o3d.CounterClass.CountMode" Counter_CountMode [
             "CONTINUOUS"
             "ONCE"
             "CYCLE"
@@ -1713,7 +1711,7 @@ module O3D =
             ]
         |=> Curve
         |=> Inherits Function
-        |> Constants "o3d.Infinity" Curve_Infinity [
+        |> Constants "o3d.Curve.Infinity" Curve_Infinity [
             "CONSTANT"
             "LINEAR"
             "CYCLE"
@@ -1945,7 +1943,7 @@ module O3D =
             ]
         |=> Primitive
         |=> Inherits Element
-        |> Constants "o3d.PrimitiveType" Primitive_PrimitiveType
+        |> Constants "o3d.Primitive.Type" Primitive_PrimitiveType
              [
                 "POINTLIST"
                 "LINELIST"
@@ -2009,13 +2007,13 @@ module O3D =
             ]
         |=> Sampler
         |=> Inherits ParamObject
-        |> Constants "o3d.AddressMode" Sampler_AddressMode [
+        |> Constants "o3d.Sampler.AddressMode" Sampler_AddressMode [
             "WRAP"
             "MIRROR"
             "CLAMP"
             "BORDER"
         ]
-        |> Constants "o3d.FilterType" Sampler_FilterType [
+        |> Constants "o3d.Sampler.FilterType" Sampler_FilterType [
             "NONE"
             "POINT"
             "LINEAR"
@@ -2270,6 +2268,7 @@ module O3D =
                 ClientClass
                 ClientInfoClass
                 CounterClass
+                CursorClass
                 CurveClass
                 CurveKeyClass
                 DisplayModeClass
@@ -2282,6 +2281,7 @@ module O3D =
                 EffectStreamInfoClass
                 ElementClass
                 EventClass
+                FieldTypeClass
                 FieldClass
                 FileRequestClass
                 FloatFieldClass
@@ -2297,8 +2297,10 @@ module O3D =
                 NamedObjectClass
                 NamedObjectBaseClass
                 ObjectBaseClass
+                ObjectTypeClass
                 PackClass
                 ParamClass
+                ParamTypeClass
                 ParamOf
                 ParamArrayClass
                 ParamOp2FloatsToFloat2Class
@@ -2352,7 +2354,7 @@ module O3D =
 
 
     let arcball_ArcBall =
-        Class "ArcBall"
+        Class "o3djs.arcball.ArcBall"
         |+> Static [
                 Constructor (T<int> * T<int>)
             ]
@@ -2365,7 +2367,7 @@ module O3D =
             ]
 
     let camera_CameraInfo =
-        Class "CameraInfo"
+        Class "o3djs.camera.CameraInfo"
         |+> Static [
                 Constructor (Matrix4?view * T<float>?zNear * T<float>?zFar * Float3?eye * Float3?target * Float3?up)
                 Constructor (Matrix4?view * T<float>?zNear * T<float>?zFar * Float3?eye * Float3?target)
@@ -2392,7 +2394,7 @@ module O3D =
 
 
     let canvas_CanvasQuad =
-        Class "CanvasQuad"
+        Class "o3djs.canvas.CanvasQuad"
         |+> Static [
                 Constructor (canvas_CanvasInfo' * T<int> * T<int> * T<bool> * Transform)
                 Constructor (canvas_CanvasInfo' * T<int> * T<int> * T<bool>)
@@ -2409,7 +2411,7 @@ module O3D =
             ]
 
     let rendergraph_DrawPassInfo =
-        Class "DrawPassInfo"
+        Class "o3djs.rendergraph.DrawPassInfo"
         |+> Static [
                 Constructor (Pack * DrawContext * DrawList_SortMethod * DrawList * RenderNode)
                 Constructor (Pack * DrawContext * DrawList_SortMethod * DrawList)
@@ -2427,7 +2429,7 @@ module O3D =
             ]
 
     let rendergraph_ViewInfo =
-        Class "ViewInfo"
+        Class "o3djs.rendergraph.ViewInfo"
         |+> Static [
                 Constructor (Pack?pack * Transform?transform * RenderNode?parent * Float4?clearColor * T<float>?priority * Float4?viewport * DrawList?performanceDrawList * DrawList?zOrderedDrawList)
                 Constructor (Pack?pack * Transform?transform * RenderNode?parent * Float4?clearColor * T<float>?priority * Float4?viewport * DrawList?performanceDrawList)
@@ -2470,7 +2472,7 @@ module O3D =
             ]
 
     let canvas_CanvasInfo =
-        Class "CanvasInfo"
+        Class "o3djs.canvas.CanvasInfo"
         |=> canvas_CanvasInfo'
         |+> Static [
                 Constructor (Pack * Transform * rendergraph_ViewInfo)
@@ -2494,7 +2496,7 @@ module O3D =
 
 
     let debug_DebugLineGroup =
-        Class "DebugLineGroup"
+        Class "o3djs.debug.DebugLineGroup"
         |+> Static [
                 Constructor (debug_DebugHelper' * Transform)
             ]
@@ -2514,7 +2516,7 @@ module O3D =
             ]
 
     let debug_DebugHelper =
-        Class "DebugHelper"
+        Class "o3djs.debug.DebugHelper"
         |=> debug_DebugHelper'
         |+> Static [
                 Constructor (Pack * rendergraph_ViewInfo)
@@ -2556,7 +2558,7 @@ module O3D =
             ]
 
     let debug_DebugLine =
-        Class "DebugLine"
+        Class "o3djs.debug.DebugLine"
         |=> debug_DebugLine'
         |+> Static [
                 Constructor (debug_DebugLineGroup)
@@ -2574,7 +2576,7 @@ module O3D =
             ]
 
     let debug_VertexInfo =
-        Class "VertexInfo"
+        Class "o3djs.debug.VertexInfo"
         |+> Static [
                 Constructor (Type.ArrayOf Float3 * Type.ArrayOf T<int>)
                 Constructor (Type.ArrayOf Float3)
@@ -2594,7 +2596,7 @@ module O3D =
             ]
 
     let effect_Description =
-        Class "Description"
+        Class "o3djs.effect.Description"
         |+> Instance
             [
                 "description" =? T<string>
@@ -2602,10 +2604,10 @@ module O3D =
             ]
 
     let effect_Type =
-        ConstantStringsType "Type" ["phong"; "lambert"; "constant"]
+        ConstantStringsType "o3djs.effect.Type" ["phong"; "lambert"; "constant"]
 
     let error_ErrorCollector =
-        Class "ErrorCollector"
+        Class "o3djs.error.ErrorCollector"
         |+> Static [
                 Constructor (Client)
             ]
@@ -2616,7 +2618,7 @@ module O3D =
             ]
 
     let fps_ColorRect =
-        Class "ColorRect"
+        Class "o3djs.fps.ColorRect"
         |+> Static [
                 Constructor (Pack?pack * Shape?shape * Transform?transform * T<float>?x * T<float>?y * T<float>?z * T<float>?width * T<float>?height * Float4?color)
                 "setColor" => Float4 ^-> T<unit>
@@ -2625,7 +2627,7 @@ module O3D =
             ]
 
     let fps_FPSManager =
-        Class "FPSManager"
+        Class "o3djs.fps.FPSManager"
         |+> Static [
                 Constructor (Pack * T<int> * T<int> * RenderNode)
                 Constructor (Pack * T<int> * T<int>)
@@ -2642,7 +2644,7 @@ module O3D =
             ]
 
     let io_ProgressInfo =
-        Class "ProgressInfo"
+        Class "o3djs.io.ProgressInfo"
         |+> Instance
             [
                 "percent" =? T<float>
@@ -2653,9 +2655,7 @@ module O3D =
             ]
 
     let io_LoadInfo =
-        let t = Type.New()
-        Class "LoadInfo"
-        |=> t
+        Class "o3djs.io.LoadInfo"
         |+> Static [
                 Constructor (ArchiveRequest * T<bool>)
                 Constructor (FileRequest * T<bool>)
@@ -2665,7 +2665,7 @@ module O3D =
             ]
         |+> Instance
             [
-                "addChild" => t ^-> T<unit>
+                "addChild" => TSelf ^-> T<unit>
                 "finish" => T<unit> ^-> T<unit>
                 "getKnownProgressInfoSoFar" => T<unit> ^-> io_ProgressInfo
                 "getTotalBytesDownloaded" => T<unit> ^-> T<int>
@@ -2675,11 +2675,9 @@ module O3D =
             ]
 
     let io_ArchiveInfo =
-        let t = Type.New()
-        Class "ArchiveInfo"
-        |=> t
+        Class "o3djs.io.ArchiveInfo"
         |+> Static [
-                Constructor (Pack * T<string> * (t * T<obj> ^-> T<unit>))
+                Constructor (Pack * T<string> * (TSelf * T<obj> ^-> T<unit>))
             ]
         |+> Instance
             [
@@ -2695,7 +2693,7 @@ module O3D =
             ]
 
     let serialization_Options =
-        Pattern.Config "Options" {
+        Pattern.Config "o3djs.serialization.Options" {
             Required = []
             Optional =
                 [
@@ -2705,7 +2703,7 @@ module O3D =
     }
 
     let loader_Loader =
-        Class "Loader"
+        Class "o3djs.loader.Loader"
         |> WithSourceName "loader"
         |+> Static [
                 Constructor (T<unit> ^-> T<unit>)
@@ -2725,7 +2723,7 @@ module O3D =
             ]
 
     let particles_ParticleSpec =
-        Pattern.Config "ParticleSpec" {
+        Pattern.Config "o3djs.particles.ParticleSpec" {
             Required = []
             Optional =
                 [
@@ -2762,7 +2760,7 @@ module O3D =
         }
 
     let particles_ParticleSystem =
-        Class "ParticleSystem"
+        Class "o3djs.particles.ParticleSystem"
         |+> Static [
                 Constructor (Pack * rendergraph_ViewInfo * ParamOf.[T<float>] * (T<unit> ^-> T<float>))
                 Constructor (Pack * rendergraph_ViewInfo * ParamOf.[T<float>])
@@ -2785,7 +2783,7 @@ module O3D =
             ]
 
     let particles_ParticleEmitter =
-        Class "ParticleEmitter"
+        Class "o3djs.particles.ParticleEmitter"
         |=> particles_ParticleEmitter'
         |+> Static [
                 Constructor (particles_ParticleSystem * Texture * ParamOf.[T<float>])
@@ -2807,7 +2805,7 @@ module O3D =
             ]
 
     let particles_Trail =
-        Class "Trail"
+        Class "o3djs.particles.Trail"
         |=> particles_Trail'
         |=> Inherits particles_ParticleEmitter
         |+> Static [
@@ -2823,7 +2821,7 @@ module O3D =
             ]
 
     let particles_OneShot =
-        Class "OneShot"
+        Class "o3djs.particles.OneShot"
         |=> particles_OneShot'
         |+> Static [
                 Constructor (particles_ParticleEmitter * Transform)
@@ -2839,7 +2837,7 @@ module O3D =
             ]
 
     let particles_Fx =
-        Pattern.Config "Fx" {
+        Pattern.Config "o3djs.particles.Fx" {
             Required =
                 [
                     "name", T<string>
@@ -2849,7 +2847,7 @@ module O3D =
         }
 
     let performance_PerformanceMonitor_Options =
-        Pattern.Config "Options" {
+        Pattern.Config "o3djs.performance.PerformanceMonitor.Options" {
             Required = []
             Optional =
                 [
@@ -2860,7 +2858,7 @@ module O3D =
         }
 
     let performance_PerformanceMonitor =
-        Class "PerformanceMonitor"
+        Class "o3djs.performance.PerformanceMonitor"
         |=> Nested [performance_PerformanceMonitor_Options]
         |+> Static [
                 Constructor (T<float>?targetFPSMin * T<float>?targetFPSMax * (T<unit> ^-> T<unit>)?increaseQuality * (T<unit> ^-> T<unit>)?decreaseQuality * performance_PerformanceMonitor_Options?options)
@@ -2879,7 +2877,7 @@ module O3D =
             ]
 
     let picking_Ray =
-        Pattern.Config "Ray" {
+        Pattern.Config "o3djs.picking.Ray" {
             Required =
                 [
                     "near", Float3
@@ -2889,11 +2887,9 @@ module O3D =
         }
 
     let picking_TransformInfo =
-        let t = Type.New()
-        Class "TransformInfo"
-        |=> t
+        Class "o3djs.picking.TransformInfo"
         |+> Static [
-                Constructor (Transform * t)
+                Constructor (Transform * TSelf)
                 Constructor (Transform)
             ]
         |+> Instance
@@ -2902,12 +2898,12 @@ module O3D =
                 "getBoundingBox" => T<unit> ^-> BoundingBox
                 "pick" => picking_Ray ^-> picking_PickInfo'
                 "update" => T<unit> ^-> T<unit>
-                "parent" =@ t
+                "parent" =@ TSelf
                 "transform" =@ Transform
             ]
 
     let picking_ShapeInfo =
-        Class "ShapeInfo"
+        Class "o3djs.picking.ShapeInfo"
         |+> Static [
                 Constructor (Shape * picking_TransformInfo)
             ]
@@ -2923,7 +2919,7 @@ module O3D =
             ]
 
     let picking_PickInfo =
-        Class "PickInfo"
+        Class "o3djs.picking.PickInfo"
         |=> picking_PickInfo'
         |+> Static [
                 Constructor (Element * picking_ShapeInfo * RayIntersectionInfo * Float3)
@@ -2937,7 +2933,7 @@ module O3D =
             ]
 
     let primitives_VertexStreamInfo =
-        Class "VertexStreamInfo"
+        Class "o3djs.primitives.VertexStreamInfo"
         |+> Static [
                 Constructor (T<int> * Stream_Semantic * T<int>)
                 Constructor (T<int> * Stream_Semantic)
@@ -2969,9 +2965,7 @@ module O3D =
             ]
 
     let primitives_VertexInfo =
-        let t = Type.New()
-        Class "VertexInfo"
-        |=> t
+        Class "o3djs.primitives.VertexInfo"
         |+> Static [
                 Constructor (T<unit>)
             ]
@@ -2982,7 +2976,7 @@ module O3D =
                 "addTangentStreams" => T<int> ^-> T<unit>
                 "addTangentStreams" => T<unit> ^-> T<unit>
                 "addTriangle" => T<int> * T<int> * T<int> ^-> T<unit>
-                "append" => t ^-> T<unit>
+                "append" => TSelf ^-> T<unit>
                 "createShape" => Pack * Material ^-> Shape
                 "findStream" => Stream_Semantic * T<int> ^-> primitives_VertexStreamInfo
                 "findStream" => Stream_Semantic ^-> primitives_VertexStreamInfo
@@ -2996,16 +2990,14 @@ module O3D =
             ]
 
     let serialization_Deserializer =
-        let t = Type.New()
-        Class "Deserializer"
-        |=> t
+        Class "o3djs.serialization.Deserializer"
         |+> Static [
                 Constructor (Pack * T<obj>)
             ]
         |+> Instance
             [
                 "addObject" => T<int> * T<obj> ^-> T<unit>
-                "deserializeBuffer" => t * T<obj> * T<string> * T<string> ^-> T<unit>
+                "deserializeBuffer" => TSelf * T<obj> * T<string> * T<string> ^-> T<unit>
                 "deserializeValue" => T<obj> ^-> T<obj>
                 "getObjectById" => T<string> ^-> T<obj>
                 "run" => T<int> ^-> T<bool>
@@ -3019,16 +3011,14 @@ module O3D =
             ]
 
     let simple_SimpleObject =
-        let t = Type.New()
-        Class "SimpleObject"
-        |=> t
+        Class "o3djs.simple.SimpleObject"
         |+> Static [
                 Constructor (T<unit>)
             ]
         |+> Instance
             [
                 "init" => simple_SimpleInfo' * Transform ^-> T<unit>
-                "onPicked" => (t ^-> T<unit>) ^-> T<unit>
+                "onPicked" => (TSelf ^-> T<unit>) ^-> T<unit>
                 "onUpdate" => T<float> ^-> T<unit>
                 "setOnUpdate" => (T<float> ^-> T<unit>) ^-> (T<float> ^-> T<unit>)
                 "id" =? T<int>
@@ -3037,7 +3027,7 @@ module O3D =
             ]
 
     let simple_SimpleShape =
-        Class "SimpleShape"
+        Class "o3djs.simple.SimpleShape"
         |=> Inherits simple_SimpleObject
         |+> Static [
                 Constructor (simple_SimpleInfo' * Transform)
@@ -3052,7 +3042,7 @@ module O3D =
             ]
 
     let simple_SimpleScene =
-        Class "SimpleScene"
+        Class "o3djs.simple.SimpleScene"
         |=> Inherits simple_SimpleObject
         |+> Static [
                 Constructor (simple_SimpleInfo' * T<string> * Pack * Transform * ParamObject)
@@ -3068,7 +3058,7 @@ module O3D =
             ]
 
     let simple_SimpleInfo =
-        Class "SimpleInfo"
+        Class "o3djs.simple.SimpleInfo"
         |=> simple_SimpleInfo'
         |+> Static [
                 Constructor (T<DomElement>)
@@ -3217,6 +3207,7 @@ module O3D =
 
     let effect =
         Class "o3djs.effect"
+        |=> Nested [effect_Type; effect_Description; ]
         |+> Static [
                 "attachStandardShader" => Pack * Material * Float3 * effect_Type ^-> T<bool>
                 "buildStandardShaderString" => Material * effect_Type ^-> effect_Description
@@ -3768,7 +3759,8 @@ module O3D =
                     particles_ParticleEmitter
                     particles_ParticleSpec
                     particles_ParticleSystem
-                    particles_Trail]
+                    particles_Trail
+                    particles_Fx]
         |+> Static [
                 "createParticleSystem" => Pack * rendergraph_ViewInfo * ParamOf.[T<float>] * (T<unit> ^-> T<float>) ^-> particles_ParticleSystem
                 "FX_STRINGS" =@ Type.ArrayOf particles_Fx
@@ -3932,7 +3924,7 @@ module O3D =
 
     let serialization =
         Class "o3djs.serialization"
-        |=> Nested [serialization_Deserializer]
+        |=> Nested [serialization_Deserializer; serialization_Options]
         |+> Static [
                 "createDeserializer" => Pack * T<obj> ^-> serialization_Deserializer
                 "deserialize" => Pack * T<obj> ^-> T<unit>
@@ -4056,6 +4048,7 @@ module O3D =
                 base'
                 camera
                 canvas
+                ClientElement
                 debug
                 dump
                 effect
@@ -4103,128 +4096,9 @@ module O3D =
             Namespace "WebSharper.O3D.Resources" [
                 (Resource "Js" "o3d.js").AssemblyWide()
             ]
-            Namespace "WebSharper.O3D.O3D" [
-                ArchiveRequestClass
-                BezierCurveKeyClass
-                BitmapClass
-                BufferClass
-                CanvasClass
-                CanvasFontMetricsClass
-                CanvasLinearGradientClass
-                CanvasPaintClass
-                CanvasShaderClass
-                ClearBufferClass
-                ClientClass
-                ClientInfoClass
-                CounterClass
-                CurveClass
-                CurveKeyClass
-                DisplayModeClass
-                DrawContextClass
-                DrawElementClass
-                DrawListClass
-                DrawPassClass
-                EffectClass
-                EffectParameterInfoClass
-                EffectStreamInfoClass
-                ElementClass
-                EventClass
-                FieldClass
-                FileRequestClass
-                FloatFieldClass
-                FunctionClass
-                FunctionEvalClass
-                IndexBufferClass
-                LinearCurveKeyClass
-                MaterialClass
-                Matrix4AxisRotationClass
-                Matrix4CompositionClass
-                Matrix4ScaleClass
-                Matrix4TranslationClass
-                NamedObjectClass
-                NamedObjectBaseClass
-                ObjectBaseClass
-                PackClass
-                ParamClass
-                ParamOf
-                ParamArrayClass
-                ParamOp2FloatsToFloat2Class
-                ParamOp3FloatsToFloat3Class
-                ParamOp4FloatsToFloat4Class
-                ParamOp16FloatsToMatrix4Class
-                ParamObjectClass
-                PrimitiveClass
-                RawDataClass
-                RayIntersectionInfoClass
-                RenderDepthStencilSurfaceClass
-                RendererClass
-                RenderEventClass
-                RenderFrameCounterClass
-                RenderNodeClass
-                RenderSurfaceClass
-                RenderSurfaceBaseClass
-                RenderSurfaceSetClass
-                SamplerClass
-                SecondCounterClass
-                ShapeClass
-                SkinClass
-                SkinEvalClass
-                SourceBufferClass
-                StateClass
-                StateSetClass
-                StepCurveKeyClass
-                StreamClass
-                StreamBankClass
-                TextureClass
-                Texture2DClass
-                TextureCUBEClass
-                TickCounterClass
-                TickEventClass
-                TransformClass
-                TreeTraversalClass
-                TRSToMatrix4Class
-                UByteNFieldClass
-                UInt32FieldClass
-                VertexBufferClass
-                VertexBufferBaseClass
-                VertexSourceClass
-                ViewportClass
-            ]
-            Namespace "WebSharper.O3D.O3DJS" [
-                arcball
-                base'
-                camera
-                canvas
-                ClientElement
-                debug
-                dump
-                effect
-                element
-                error
-                event
-                fps
-                io
-                loader
-                material
-                math
-                columnMajor
-                errorCheck
-                errorCheckFree
-                rowMajor
-                pack
-                particles
-                performance
-                picking
-                primitives
-                quaternions
-                rendergraph
-                scene
-                serialization
-                shape
-                simple
-                texture
-                util
-                webgl
+            Namespace "WebSharper.O3D" [
+                o3d
+                o3djs
             ]
         ]
 
