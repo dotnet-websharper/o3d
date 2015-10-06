@@ -4,6 +4,7 @@ open IntelliFactory.Build
 let bt =
     BuildTool().PackageId("WebSharper.O3D")
         .VersionFrom("WebSharper")
+        .WithFSharpVersion(FSharpVersion.FSharp30)
         .WithFramework(fun fw -> fw.Net40)
 
 let main =
@@ -14,7 +15,11 @@ let main =
 let test =
     bt.WebSharper.HtmlWebsite("WebSharper.O3D.Tests")
         .SourcesFromProject()
-        .References(fun r -> [r.Project main])
+        .References(fun r ->
+            [
+                r.Project main
+                r.NuGet("WebSharper.Html").Reference()
+            ])
 
 bt.Solution [
     main
