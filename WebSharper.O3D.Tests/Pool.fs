@@ -1444,7 +1444,7 @@ type Pool [<JavaScript>]() =
 
     [<JavaScript>]
     let SetRenderCallback() =
-        g_client.SetRenderCallback Onrender
+        g_client.SetRenderCallback (As Onrender)
 
     [<JavaScript>]
     let RegisterEventCallbacks() =
@@ -1529,4 +1529,4 @@ type Pool [<JavaScript>]() =
 
     [<JavaScript>]
     member this.InitClient() =
-        O3DJS.Webgl.MakeClients(Main)
+        O3DJS.Webgl.MakeClients(As Main)
