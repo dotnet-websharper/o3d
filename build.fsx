@@ -1,38 +1,17 @@
-#load "tools/includes.fsx"
-open IntelliFactory.Build
+#load "paket-files/build/intellifactory/websharper/tools/WebSharper.Fake.fsx"
+open Fake
+open WebSharper.Fake
 
-let bt =
-    BuildTool().PackageId("WebSharper.O3D")
-        .VersionFrom("WebSharper", versionSpec = "(,4.0)")
-        .WithFSharpVersion(FSharpVersion.FSharp30)
-        .WithFramework(fun fw -> fw.Net40)
+let targets =
+    GetSemVerOf "WebSharper"
+    |> ComputeVersion
+    |> WSTargets.Default
+    |> MakeTargets
 
-let main =
-    bt.WebSharper.Extension("WebSharper.O3D")
-        .Embed(["o3d.js"])
-        .SourcesFromProject()
+Target "Build" DoNothing
+targets.BuildDebug ==> "Build"
 
-let test =
-    bt.WebSharper.HtmlWebsite("WebSharper.O3D.Tests")
-        .SourcesFromProject()
-        .References(fun r ->
-            [
-                r.Project main
-                r.NuGet("WebSharper.Html").Version("(,4.0)").Reference()
-            ])
+Target "CI-Release" DoNothing
+targets.CommitPublish ==> "CI-Release"
 
-bt.Solution [
-    main
-    test
-
-    bt.NuGet.CreatePackage()
-        .Configure(fun c ->
-            { c with
-                Title = Some "WebSharper.O3D-20100829"
-                LicenseUrl = Some "http://websharper.com/licensing"
-                ProjectUrl = Some "https://github.com/intellifactory/websharper.o3d"
-                Description = "WebSharper Extensions for O3D 20100829"
-                RequiresLicenseAcceptance = true })
-        .Add(main)
-]
-|> bt.Dispatch
+RunTargetOrDefault "Build"

@@ -715,8 +715,9 @@ type Pool [<JavaScript>]() =
     [<JavaScript>]
     let UpdateMaterials() =
         JS.ForEach g_materials (fun name ->
-            let eye, _ = g_cameraInfo.GetEyeAndTarget()
-            SetOptionalParam((?) g_materials name, "eyeWorldPosition", eye)
+            if JS.HasOwnProperty g_materials name then
+                let eye, _ = g_cameraInfo.GetEyeAndTarget()
+                SetOptionalParam(g_materials?(name), "eyeWorldPosition", eye)
             false)
 
     [<JavaScript>]

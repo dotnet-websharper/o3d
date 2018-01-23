@@ -1,0 +1,17 @@
+type file
+id WebSharper.O3D
+authors
+    IntelliFactory
+owners
+    IntelliFactory
+licenseUrl http://websharper.com/licensing
+projectUrl https://github.com/intellifactory/websharper.o3d
+description
+    WebSharper Extensions for O3D 20100829
+tags
+    Web JavaScript F# C#
+files
+    ../WebSharper.O3D/bin/Release/netstandard2.0/WebSharper.O3D.dll ==> lib/netstandard2.0
+    ../WebSharper.O3D/bin/Release/netstandard2.0/WebSharper.O3D.xml ==> lib/netstandard2.0
+dependencies
+        WebSharper ~> LOCKEDVERSION/3
