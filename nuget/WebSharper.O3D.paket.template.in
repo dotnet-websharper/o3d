@@ -11,8 +11,8 @@ description
 tags
     Web JavaScript F# C#
 files
-    ../WebSharper.O3D/bin/Release/netstandard2.0/WebSharper.O3D.dll ==> lib/net461
-    ../WebSharper.O3D/bin/Release/netstandard2.0/WebSharper.O3D.xml ==> lib/net461
+    ../WebSharper.O3D/bin/Release/net461/WebSharper.O3D.dll ==> lib/net461
+    ../WebSharper.O3D/bin/Release/net461/WebSharper.O3D.xml ==> lib/net461
     ../WebSharper.O3D/bin/Release/netstandard2.0/WebSharper.O3D.dll ==> lib/netstandard2.0
     ../WebSharper.O3D/bin/Release/netstandard2.0/WebSharper.O3D.xml ==> lib/netstandard2.0
 dependencies
