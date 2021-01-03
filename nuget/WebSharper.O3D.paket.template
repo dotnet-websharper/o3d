@@ -16,4 +16,4 @@ files
     ../WebSharper.O3D/bin/Release/netstandard2.0/WebSharper.O3D.dll ==> lib/netstandard2.0
     ../WebSharper.O3D/bin/Release/netstandard2.0/WebSharper.O3D.xml ==> lib/netstandard2.0
 dependencies
-        WebSharper ~> LOCKEDVERSION/3
+        WebSharper ~> LOCKEDVERSION:[3]

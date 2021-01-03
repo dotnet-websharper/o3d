@@ -8,7 +8,6 @@ build/
 **/Scripts/
 **/bin/
 **/obj/
-nuget/*.paket.template
 bin/
 obj/
 /.fake/
